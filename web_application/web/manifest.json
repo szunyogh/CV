@@ -1,6 +1,6 @@
 {
-    "name": "cv",
-    "short_name": "cv",
+    "name": "web_application",
+    "short_name": "web_application",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
