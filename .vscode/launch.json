@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "name": "Flutter for mobile",
+            "type": "dart",
+            "request": "launch",
+            "program": "mobile_cv/lib/main.dart"
+        },
+        {
+            "name": "Flutter for web",
+            "type": "dart",
+            "request": "launch",
+            "program": "web_cv/lib/main.dart",
+            "args": [
+                "--web-renderer",
+                "html",
+                "--web-hostname",
+                "any",
+                "--web-port",
+                "5000"
+            ],
+        },
+    ]
+}
