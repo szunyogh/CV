@@ -1,4 +1,4 @@
-package com.example.mobile_cv
+package com.example.cv
 
 import io.flutter.embedding.android.FlutterActivity
 
