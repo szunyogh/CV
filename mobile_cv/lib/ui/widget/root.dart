@@ -1,6 +1,7 @@
 import 'package:common/logic/auth_logic.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mobile_cv/ui/page/chat.dart';
 import 'package:mobile_cv/ui/page/home.dart';
 import 'package:mobile_cv/ui/page/login.dart';
 import 'package:mobile_cv/ui/widget/menu.dart';
@@ -57,11 +58,9 @@ class _MenuRootState extends ConsumerState<_MenuRoot> {
           selectedTab = currentTab;
         });
       },
-      pages: [
-        const HomPage(),
-        Container(
-          color: Colors.blue,
-        ),
+      pages: const [
+        HomPage(),
+        ChatPage(),
       ],
       header: MenuHeader(
         email: user.email,

@@ -31,7 +31,8 @@ class _$ProfileTearOff {
       String facebook = "",
       @TimestampConverterNullable() DateTime? birthday,
       String aboutMe = "",
-      String docId = ""}) {
+      String docId = "",
+      String fcmToken = ""}) {
     return _Profile(
       name: name,
       phone: phone,
@@ -42,6 +43,7 @@ class _$ProfileTearOff {
       birthday: birthday,
       aboutMe: aboutMe,
       docId: docId,
+      fcmToken: fcmToken,
     );
   }
 
@@ -65,6 +67,7 @@ mixin _$Profile {
   DateTime? get birthday => throw _privateConstructorUsedError;
   String get aboutMe => throw _privateConstructorUsedError;
   String get docId => throw _privateConstructorUsedError;
+  String get fcmToken => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -84,7 +87,8 @@ abstract class $ProfileCopyWith<$Res> {
       String facebook,
       @TimestampConverterNullable() DateTime? birthday,
       String aboutMe,
-      String docId});
+      String docId,
+      String fcmToken});
 }
 
 /// @nodoc
@@ -106,6 +110,7 @@ class _$ProfileCopyWithImpl<$Res> implements $ProfileCopyWith<$Res> {
     Object? birthday = freezed,
     Object? aboutMe = freezed,
     Object? docId = freezed,
+    Object? fcmToken = freezed,
   }) {
     return _then(_value.copyWith(
       name: name == freezed
@@ -144,6 +149,10 @@ class _$ProfileCopyWithImpl<$Res> implements $ProfileCopyWith<$Res> {
           ? _value.docId
           : docId // ignore: cast_nullable_to_non_nullable
               as String,
+      fcmToken: fcmToken == freezed
+          ? _value.fcmToken
+          : fcmToken // ignore: cast_nullable_to_non_nullable
+              as String,
     ));
   }
 }
@@ -162,7 +171,8 @@ abstract class _$ProfileCopyWith<$Res> implements $ProfileCopyWith<$Res> {
       String facebook,
       @TimestampConverterNullable() DateTime? birthday,
       String aboutMe,
-      String docId});
+      String docId,
+      String fcmToken});
 }
 
 /// @nodoc
@@ -185,6 +195,7 @@ class __$ProfileCopyWithImpl<$Res> extends _$ProfileCopyWithImpl<$Res>
     Object? birthday = freezed,
     Object? aboutMe = freezed,
     Object? docId = freezed,
+    Object? fcmToken = freezed,
   }) {
     return _then(_Profile(
       name: name == freezed
@@ -223,6 +234,10 @@ class __$ProfileCopyWithImpl<$Res> extends _$ProfileCopyWithImpl<$Res>
           ? _value.docId
           : docId // ignore: cast_nullable_to_non_nullable
               as String,
+      fcmToken: fcmToken == freezed
+          ? _value.fcmToken
+          : fcmToken // ignore: cast_nullable_to_non_nullable
+              as String,
     ));
   }
 }
@@ -239,7 +254,8 @@ class _$_Profile implements _Profile {
       this.facebook = "",
       @TimestampConverterNullable() this.birthday,
       this.aboutMe = "",
-      this.docId = ""});
+      this.docId = "",
+      this.fcmToken = ""});
 
   factory _$_Profile.fromJson(Map<String, dynamic> json) =>
       _$$_ProfileFromJson(json);
@@ -271,10 +287,13 @@ class _$_Profile implements _Profile {
   @JsonKey()
   @override
   final String docId;
+  @JsonKey()
+  @override
+  final String fcmToken;
 
   @override
   String toString() {
-    return 'Profile(name: $name, phone: $phone, id: $id, profile: $profile, email: $email, facebook: $facebook, birthday: $birthday, aboutMe: $aboutMe, docId: $docId)';
+    return 'Profile(name: $name, phone: $phone, id: $id, profile: $profile, email: $email, facebook: $facebook, birthday: $birthday, aboutMe: $aboutMe, docId: $docId, fcmToken: $fcmToken)';
   }
 
   @override
@@ -290,7 +309,8 @@ class _$_Profile implements _Profile {
             const DeepCollectionEquality().equals(other.facebook, facebook) &&
             const DeepCollectionEquality().equals(other.birthday, birthday) &&
             const DeepCollectionEquality().equals(other.aboutMe, aboutMe) &&
-            const DeepCollectionEquality().equals(other.docId, docId));
+            const DeepCollectionEquality().equals(other.docId, docId) &&
+            const DeepCollectionEquality().equals(other.fcmToken, fcmToken));
   }
 
   @override
@@ -304,7 +324,8 @@ class _$_Profile implements _Profile {
       const DeepCollectionEquality().hash(facebook),
       const DeepCollectionEquality().hash(birthday),
       const DeepCollectionEquality().hash(aboutMe),
-      const DeepCollectionEquality().hash(docId));
+      const DeepCollectionEquality().hash(docId),
+      const DeepCollectionEquality().hash(fcmToken));
 
   @JsonKey(ignore: true)
   @override
@@ -327,7 +348,8 @@ abstract class _Profile implements Profile {
       String facebook,
       @TimestampConverterNullable() DateTime? birthday,
       String aboutMe,
-      String docId}) = _$_Profile;
+      String docId,
+      String fcmToken}) = _$_Profile;
 
   factory _Profile.fromJson(Map<String, dynamic> json) = _$_Profile.fromJson;
 
@@ -350,6 +372,8 @@ abstract class _Profile implements Profile {
   String get aboutMe;
   @override
   String get docId;
+  @override
+  String get fcmToken;
   @override
   @JsonKey(ignore: true)
   _$ProfileCopyWith<_Profile> get copyWith =>

@@ -17,6 +17,7 @@ _$_Profile _$$_ProfileFromJson(Map<String, dynamic> json) => _$_Profile(
           .fromJson(json['birthday'] as Timestamp?),
       aboutMe: json['aboutMe'] as String? ?? "",
       docId: json['docId'] as String? ?? "",
+      fcmToken: json['fcmToken'] as String? ?? "",
     );
 
 Map<String, dynamic> _$$_ProfileToJson(_$_Profile instance) =>
@@ -30,4 +31,5 @@ Map<String, dynamic> _$$_ProfileToJson(_$_Profile instance) =>
       'birthday': const TimestampConverterNullable().toJson(instance.birthday),
       'aboutMe': instance.aboutMe,
       'docId': instance.docId,
+      'fcmToken': instance.fcmToken,
     };

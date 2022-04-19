@@ -26,6 +26,7 @@ class Profile with _$Profile {
     @TimestampConverterNullable() DateTime? birthday,
     @Default("") String aboutMe,
     @Default("") String docId,
+    @Default("") String fcmToken,
   }) = _Profile;
 
   factory Profile.fromJson(Map<String, dynamic> json) => _$ProfileFromJson(json);

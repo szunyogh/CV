@@ -6,7 +6,12 @@ import 'package:common/model/response/school.dart';
 
 class ProfileService {
   Future<Profile> getProfile() async {
-    return FirebaseFirestore.instance.collection('me').get().then((value) => Profile.fromJson(value.docs.first.data()));
+    return FirebaseFirestore.instance.collection('me').get().then((value) async {
+      final jsonResponse = value.docs.first.data();
+      final json = await FirebaseFirestore.instance.collection('users').doc(jsonResponse["uid"]).get();
+      jsonResponse.addAll({"fcmToken": json["fcmToken"]});
+      return Profile.fromJson(jsonResponse);
+    });
   }
 
   Future<List<Experience>> getExperiences(String id) async {
