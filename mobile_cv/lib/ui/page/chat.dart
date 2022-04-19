@@ -8,6 +8,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:common/ui/widget/chat_bubble.dart';
 import 'package:common/logic/chat_logic.dart';
 import 'package:common/ui/widget/typing_indicator.dart';
+import 'package:common/ui/widget/picture_bubble.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ChatPage extends ConsumerStatefulWidget {
   const ChatPage({Key? key}) : super(key: key);
@@ -113,6 +115,13 @@ class ListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double maxWidth = MediaQuery.of(context).size.width / 1.65;
+    if (chat.isPicture) {
+      return PictureBubble(
+        isSender: uId == chat.sender,
+        onTap: () {},
+        maxWidth: maxWidth,
+      );
+    }
     return ChatBubble(
       maxWidth: maxWidth,
       isSender: uId == chat.sender,
@@ -133,11 +142,13 @@ class BottomBar extends ConsumerStatefulWidget {
 
 class _BottomBarState extends ConsumerState<BottomBar> {
   late TextEditingController controller;
+  late ImagePicker picker;
 
   @override
   void initState() {
     super.initState();
     controller = TextEditingController();
+    picker = ImagePicker();
     controller.addListener(() => textListener());
   }
 
@@ -175,7 +186,9 @@ class _BottomBarState extends ConsumerState<BottomBar> {
       child: Row(
         children: [
           InkWell(
-            onTap: () {},
+            onTap: () async {
+              final image = await picker.pickImage(source: ImageSource.camera);
+            },
             child: const Icon(
               Icons.camera_alt,
               color: Colors.blue,
@@ -183,7 +196,9 @@ class _BottomBarState extends ConsumerState<BottomBar> {
             ),
           ),
           InkWell(
-            onTap: () {},
+            onTap: () async {
+              final image = await picker.pickImage(source: ImageSource.gallery);
+            },
             child: const Icon(
               Icons.image,
               color: Colors.blue,

@@ -54,21 +54,20 @@ class ChatService {
     return await client.post(Uri.parse(url), headers: header, body: json.encode(request));
   }
 
-  Future<String> updateMessage(String id) async {
+  Future<void> updateMessage(String id) async {
     DocumentReference<Map<String, dynamic>> chat = FirebaseFirestore.instance.collection('users').doc(id);
 
     WriteBatch batch = FirebaseFirestore.instance.batch();
 
     return await chat.collection('chat').where('isUpload', isEqualTo: false).get().then((querySnapshot) {
       if (querySnapshot.docs.isNotEmpty) {
-        String lastMessage = querySnapshot.docs.last.data()['message'];
         for (var document in querySnapshot.docs) {
-          batch.update(document.reference, {"isUpload": true});
+          if ((document.data()['picture'] as String).isEmpty) {
+            batch.update(document.reference, {"isUpload": true});
+          }
         }
         batch.commit();
-        return lastMessage;
       }
-      return "";
     });
   }
 
