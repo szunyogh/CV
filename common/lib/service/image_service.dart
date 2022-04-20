@@ -5,13 +5,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ImageService {
-  Future<String> getImage(Map<String, dynamic> data, String id) async {
-    return await FirebaseFirestore.instance
-        .collection('users')
-        .doc(id)
-        .collection('chat')
-        .add(data)
-        .then((value) => value.id);
+  Future<void> getImage(Map<String, dynamic> data, String id) async {
+    return await FirebaseFirestore.instance.collection('users').doc(id).collection('chat').doc(data["id"]).set(data);
   }
 
   Stream<Image> uploadImage(String id, XFile file) {
@@ -20,16 +15,20 @@ class ImageService {
     });
   }
 
+  Future<String> downloadImage(String id, XFile file) async {
+    return await FirebaseStorage.instance.ref('$id/${file.name}').getDownloadURL();
+  }
+
   Future<void> removeImage(String uId, String imageId) async {
     return await FirebaseFirestore.instance.collection('users').doc(uId).collection('chat').doc(imageId).delete();
   }
 
-  Future<void> sendImage(String uId, String imageId) async {
+  Future<void> sendImage(String uId, String imageId, String picture) async {
     return await FirebaseFirestore.instance
         .collection('users')
         .doc(uId)
         .collection('chat')
         .doc(imageId)
-        .update({"isUpload": true});
+        .update({"isUpload": true, "picture": picture});
   }
 }

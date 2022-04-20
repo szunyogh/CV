@@ -17,13 +17,15 @@ class ImageIndicator extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+      padding: EdgeInsets.fromLTRB(width, 0, 7, 10),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
         child: Stack(
           alignment: Alignment.center,
           children: [
-            Image.file(image, width: width),
+            Image.file(
+              image,
+            ),
             BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
               child: SizedBox(

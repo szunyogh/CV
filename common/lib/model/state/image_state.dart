@@ -8,7 +8,7 @@ part 'image_state.freezed.dart';
 class ImageState with _$ImageState {
   const ImageState._();
   const factory ImageState({
-    @Default(Image(progress: 0.0)) image,
+    @Default(Image(progress: 0.0)) Image image,
     @Default("") String imageId,
   }) = _ImageState;
 }

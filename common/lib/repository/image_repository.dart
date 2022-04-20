@@ -12,9 +12,9 @@ class ImageRepository implements IImageRepository {
   ImageService get service => ImageService();
 
   @override
-  Future<String> getImage(Map<String, dynamic> data, String id) async {
+  Future<void> getImage(Map<String, dynamic> data, String id) async {
     try {
-      return await service.getImage(data, id);
+      await service.getImage(data, id);
     } catch (err) {
       throw Exception();
     }
@@ -30,9 +30,9 @@ class ImageRepository implements IImageRepository {
   }
 
   @override
-  Future<void> sendImage(String uId, String imageId) async {
+  Future<void> sendImage(String uId, String imageId, String picture) async {
     try {
-      await service.sendImage(uId, imageId);
+      await service.sendImage(uId, imageId, picture);
     } catch (err) {
       throw Exception();
     }
@@ -42,6 +42,15 @@ class ImageRepository implements IImageRepository {
   Stream<Image> uploadImage(String id, XFile file) {
     try {
       return service.uploadImage(id, file);
+    } catch (err) {
+      throw Exception();
+    }
+  }
+
+  @override
+  Future<String> downloadImage(String id, XFile file) {
+    try {
+      return service.downloadImage(id, file);
     } catch (err) {
       throw Exception();
     }

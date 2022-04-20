@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:common/logic/auth_logic.dart';
 import 'package:common/logic/profile_logic.dart';
 import 'package:common/model/response/chat.dart';
@@ -10,6 +12,8 @@ import 'package:common/logic/chat_logic.dart';
 import 'package:common/ui/widget/typing_indicator.dart';
 import 'package:common/ui/widget/picture_bubble.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:common/logic/image_logic.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class ChatPage extends ConsumerStatefulWidget {
   const ChatPage({Key? key}) : super(key: key);
@@ -21,12 +25,19 @@ class ChatPage extends ConsumerStatefulWidget {
 class _ChatPageState extends ConsumerState<ChatPage> {
   @override
   void initState() {
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
+      await WidgetsBinding.instance?.endOfFrame;
+      stream();
+    });
     super.initState();
+  }
+
+  void stream() async {
+    await ref.read(chatLogic.notifier).initialize();
   }
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(chatLogic.notifier).initialize();
     final chats = ref.watch(chatLogic).chats;
     final uId = ref.watch(authenticationLogic).userId;
     final profile = ref.watch(profileLogic).profile;
@@ -37,30 +48,28 @@ class _ChatPageState extends ConsumerState<ChatPage> {
         centerTitle: true,
         toolbarHeight: 70,
       ),
-      body: chats.isEmpty
-          ? EmptyWidget(profile: profile)
-          : Column(
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(20, 10, 13, 0),
-                      itemCount: chats.length,
-                      reverse: true,
-                      itemBuilder: (c, i) {
-                        return ListItem(chat: chats[i], uId: uId);
-                      }),
-                ),
-                Align(
-                  alignment: Alignment.bottomLeft,
-                  child: TypingIndicator(
-                    bubbleColor: Colors.grey[300]!,
-                    flashingCircleDarkColor: Colors.grey,
-                    showIndicator: isTyping,
-                  ),
-                ),
-                const BottomBar(),
-              ],
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+                padding: const EdgeInsets.fromLTRB(20, 10, 13, 0),
+                itemCount: chats.length,
+                reverse: true,
+                itemBuilder: (c, i) {
+                  return ListItem(chat: chats[i], uId: uId);
+                }),
+          ),
+          Align(
+            alignment: Alignment.bottomLeft,
+            child: TypingIndicator(
+              bubbleColor: Colors.grey[300]!,
+              flashingCircleDarkColor: Colors.grey,
+              showIndicator: isTyping,
             ),
+          ),
+          const BottomBar(),
+        ],
+      ),
     );
   }
 }
@@ -103,7 +112,7 @@ class EmptyWidget extends StatelessWidget {
   }
 }
 
-class ListItem extends StatelessWidget {
+class ListItem extends ConsumerWidget {
   final Chat chat;
   final String uId;
   const ListItem({
@@ -113,11 +122,16 @@ class ListItem extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     double maxWidth = MediaQuery.of(context).size.width / 1.65;
     if (chat.isPicture) {
+      final uploadState = ref.watch(imageLogic(chat.id)).image;
       return PictureBubble(
         isSender: uId == chat.sender,
+        picture: chat.picture,
+        isShowIndicator: uploadState.state == TaskState.running,
+        progress: uploadState.progress,
+        isSaw: chat.isSee,
         onTap: () {},
         maxWidth: maxWidth,
       );
@@ -169,6 +183,7 @@ class _BottomBarState extends ConsumerState<BottomBar> {
 
   @override
   Widget build(BuildContext context) {
+    final uId = ref.watch(authenticationLogic).userId;
     return Container(
       width: double.maxFinite,
       decoration: BoxDecoration(
@@ -188,6 +203,9 @@ class _BottomBarState extends ConsumerState<BottomBar> {
           InkWell(
             onTap: () async {
               final image = await picker.pickImage(source: ImageSource.camera);
+              final ran = Random();
+              final id = "${uId.substring(0, 5)}-${ran.nextInt(13402)}-${image!.name.split('.').first}";
+              ref.read(imageLogic(id).notifier).getImage(image);
             },
             child: const Icon(
               Icons.camera_alt,
@@ -197,7 +215,12 @@ class _BottomBarState extends ConsumerState<BottomBar> {
           ),
           InkWell(
             onTap: () async {
-              final image = await picker.pickImage(source: ImageSource.gallery);
+              final image = await picker.pickMultiImage();
+              image?.forEach((element) {
+                final ran = Random();
+                final id = "${uId.substring(0, 5)}-${ran.nextInt(13402)}-${element.name.split('.').first}";
+                ref.read(imageLogic(id).notifier).getImage(element);
+              });
             },
             child: const Icon(
               Icons.image,

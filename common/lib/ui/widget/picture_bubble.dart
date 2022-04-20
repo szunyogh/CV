@@ -28,61 +28,55 @@ class PictureBubble extends StatelessWidget {
       return ImageIndicator(
         image: File(picture),
         progressValue: progress,
-        width: maxWidth,
+        width: maxWidth / 2,
       );
     }
-    return Stack(
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: InkWell(
-            onTap: () => onTap(),
-            child: Hero(
-              tag: picture,
-              child: Image.network(
-                picture,
-                loadingBuilder: (c, w, e) {
-                  if (e == null) return w;
-                  return const Padding(
-                    padding: EdgeInsets.all(10.0),
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                },
-                width: maxWidth,
-                errorBuilder: (c, e, s) {
-                  return picture.isNotEmpty
-                      ? Image.file(
-                          File(picture),
-                          errorBuilder: (fc, fe, fs) => Padding(
-                            padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
-                            child: Text(
-                              "Kép feltöltése folyamatban...",
-                              style:
-                                  isSender ? Theme.of(context).textTheme.bodyText1 : Theme.of(context).textTheme.bodyText2,
-                            ),
-                          ),
-                        )
-                      : Padding(
-                          padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
-                          child: Text(
-                            "Hiba a kép betöltésekor!",
-                            style: isSender ? Theme.of(context).textTheme.bodyText1 : Theme.of(context).textTheme.bodyText2,
-                          ),
-                        );
-                },
+    return Align(
+      alignment: isSender ? Alignment.centerRight : Alignment.centerLeft,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+        child: Stack(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: InkWell(
+                onTap: () => onTap(),
+                child: Hero(
+                  tag: picture,
+                  child: Image.network(
+                    picture,
+                    loadingBuilder: (c, w, e) {
+                      if (e == null) return w;
+                      return const Padding(
+                        padding: EdgeInsets.all(10.0),
+                        child: Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                    },
+                    width: maxWidth,
+                    errorBuilder: (c, e, s) {
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
+                        child: Text(
+                          "Hiba a kép betöltésekor!",
+                          style: Theme.of(context).textTheme.bodyText2,
+                        ),
+                      );
+                    },
+                  ),
+                ),
               ),
             ),
-          ),
+            if (isSender)
+              Positioned(
+                right: 0,
+                bottom: 2,
+                child: SawIndicator(showIndicator: isSaw),
+              ),
+          ],
         ),
-        if (isSender)
-          Positioned(
-            right: 0,
-            bottom: 2,
-            child: SawIndicator(showIndicator: isSaw),
-          ),
-      ],
+      ),
     );
   }
 }

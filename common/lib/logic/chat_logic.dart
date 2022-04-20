@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:common/logic/auth_logic.dart';
 import 'package:common/logic/base.dart';
+import 'package:common/logic/image_logic.dart';
 import 'package:common/logic/profile_logic.dart';
 import 'package:common/model/response/chat.dart';
 import 'package:common/model/response/user.dart';
@@ -8,11 +10,14 @@ import 'package:common/repository/chat_repository.dart';
 import 'package:common/repository/interface/chat_interface.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:image_picker/image_picker.dart';
 
 final chatLogic = StateNotifierProvider<ChatLogic, ChatState>((ref) => ChatLogic(ref.read));
 
 class ChatLogic extends BaseLogic<ChatState> {
   ChatLogic(Reader read) : super(read, const ChatState());
+
+  bool isFirst = false;
 
   IChatRepository get repo => read(chatRepo);
 
@@ -20,12 +25,19 @@ class ChatLogic extends BaseLogic<ChatState> {
 
   @override
   Future<void> initialize() async {
-    getTyping();
+    await getTyping();
     repo.getMessages(user.id).listen((event) async {
       state = state.copyWith(chats: event);
       updateMessageSaw();
       final connectivity = await Connectivity().checkConnectivity();
       if (connectivity != ConnectivityResult.none) {
+        if (!isFirst) {
+          final uploadList = event.where((element) => element.isUpload == false && element.picture.isNotEmpty).toList();
+          for (var item in uploadList) {
+            read(imageLogic(item.id).notifier).uploadImage(XFile(item.picture));
+          }
+          isFirst = true;
+        }
         updateMessage();
       }
     });

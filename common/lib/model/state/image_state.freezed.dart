@@ -19,7 +19,7 @@ class _$ImageStateTearOff {
   const _$ImageStateTearOff();
 
   _ImageState call(
-      {dynamic image = const Image(progress: 0.0), String imageId = ""}) {
+      {Image image = const Image(progress: 0.0), String imageId = ""}) {
     return _ImageState(
       image: image,
       imageId: imageId,
@@ -32,7 +32,7 @@ const $ImageState = _$ImageStateTearOff();
 
 /// @nodoc
 mixin _$ImageState {
-  dynamic get image => throw _privateConstructorUsedError;
+  Image get image => throw _privateConstructorUsedError;
   String get imageId => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
@@ -45,7 +45,9 @@ abstract class $ImageStateCopyWith<$Res> {
   factory $ImageStateCopyWith(
           ImageState value, $Res Function(ImageState) then) =
       _$ImageStateCopyWithImpl<$Res>;
-  $Res call({dynamic image, String imageId});
+  $Res call({Image image, String imageId});
+
+  $ImageCopyWith<$Res> get image;
 }
 
 /// @nodoc
@@ -65,12 +67,19 @@ class _$ImageStateCopyWithImpl<$Res> implements $ImageStateCopyWith<$Res> {
       image: image == freezed
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
-              as dynamic,
+              as Image,
       imageId: imageId == freezed
           ? _value.imageId
           : imageId // ignore: cast_nullable_to_non_nullable
               as String,
     ));
+  }
+
+  @override
+  $ImageCopyWith<$Res> get image {
+    return $ImageCopyWith<$Res>(_value.image, (value) {
+      return _then(_value.copyWith(image: value));
+    });
   }
 }
 
@@ -80,7 +89,10 @@ abstract class _$ImageStateCopyWith<$Res> implements $ImageStateCopyWith<$Res> {
           _ImageState value, $Res Function(_ImageState) then) =
       __$ImageStateCopyWithImpl<$Res>;
   @override
-  $Res call({dynamic image, String imageId});
+  $Res call({Image image, String imageId});
+
+  @override
+  $ImageCopyWith<$Res> get image;
 }
 
 /// @nodoc
@@ -99,7 +111,10 @@ class __$ImageStateCopyWithImpl<$Res> extends _$ImageStateCopyWithImpl<$Res>
     Object? imageId = freezed,
   }) {
     return _then(_ImageState(
-      image: image == freezed ? _value.image : image,
+      image: image == freezed
+          ? _value.image
+          : image // ignore: cast_nullable_to_non_nullable
+              as Image,
       imageId: imageId == freezed
           ? _value.imageId
           : imageId // ignore: cast_nullable_to_non_nullable
@@ -117,7 +132,7 @@ class _$_ImageState extends _ImageState {
 
   @JsonKey()
   @override
-  final dynamic image;
+  final Image image;
   @JsonKey()
   @override
   final String imageId;
@@ -149,11 +164,11 @@ class _$_ImageState extends _ImageState {
 }
 
 abstract class _ImageState extends ImageState {
-  const factory _ImageState({dynamic image, String imageId}) = _$_ImageState;
+  const factory _ImageState({Image image, String imageId}) = _$_ImageState;
   const _ImageState._() : super._();
 
   @override
-  dynamic get image;
+  Image get image;
   @override
   String get imageId;
   @override

@@ -93,6 +93,6 @@ class ChatService {
 
   Future<void> typingStatus(String id, int index, bool typing) async {
     final typingData = index == 0 ? {"user_1": typing} : {"user_2": typing};
-    FirebaseFirestore.instance.collection('users').doc(id).set({'typing_status': typingData}, SetOptions(merge: true));
+    FirebaseFirestore.instance.collection('users').doc(id).set({'typingStatus': typingData}, SetOptions(merge: true));
   }
 }
