@@ -34,7 +34,7 @@ class _MenuRoot extends ConsumerStatefulWidget {
 }
 
 class _MenuRootState extends ConsumerState<_MenuRoot> {
-  int selectedTab = 0;
+  int selectedTab = 1;
   @override
   void initState() {
     super.initState();

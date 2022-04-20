@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:common/ui/widget/image_indicator.dart';
 import 'package:common/ui/widget/saw_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class PictureBubble extends StatelessWidget {
   final double maxWidth;
@@ -11,6 +12,7 @@ class PictureBubble extends StatelessWidget {
   final bool isShowIndicator;
   final bool isSaw;
   final double progress;
+  final String errorMessage;
   const PictureBubble({
     Key? key,
     required this.maxWidth,
@@ -19,6 +21,7 @@ class PictureBubble extends StatelessWidget {
     required this.onTap,
     this.isShowIndicator = false,
     this.isSaw = false,
+    this.errorMessage = "",
     this.progress = 0.0,
   }) : super(key: key);
 
@@ -34,8 +37,9 @@ class PictureBubble extends StatelessWidget {
     return Align(
       alignment: isSender ? Alignment.centerRight : Alignment.centerLeft,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+        padding: const EdgeInsets.fromLTRB(20, 0, 7, 10),
         child: Stack(
+          clipBehavior: Clip.none,
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(20),
@@ -43,23 +47,23 @@ class PictureBubble extends StatelessWidget {
                 onTap: () => onTap(),
                 child: Hero(
                   tag: picture,
-                  child: Image.network(
-                    picture,
-                    loadingBuilder: (c, w, e) {
-                      if (e == null) return w;
-                      return const Padding(
-                        padding: EdgeInsets.all(10.0),
-                        child: Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                      );
-                    },
+                  child: CachedNetworkImage(
+                    imageUrl: picture,
+                    placeholder: (context, url) => Container(
+                      height: 150,
+                      color: Colors.black12,
+                      width: maxWidth,
+                      child: const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
                     width: maxWidth,
-                    errorBuilder: (c, e, s) {
-                      return Padding(
+                    errorWidget: (c, s, d) {
+                      return Container(
+                        color: Colors.black12,
                         padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
                         child: Text(
-                          "Hiba a kép betöltésekor!",
+                          errorMessage,
                           style: Theme.of(context).textTheme.bodyText2,
                         ),
                       );
@@ -70,8 +74,8 @@ class PictureBubble extends StatelessWidget {
             ),
             if (isSender)
               Positioned(
-                right: 0,
-                bottom: 2,
+                right: -6.0,
+                bottom: -4.0,
                 child: SawIndicator(showIndicator: isSaw),
               ),
           ],

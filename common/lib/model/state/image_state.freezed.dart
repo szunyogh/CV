@@ -18,11 +18,9 @@ final _privateConstructorUsedError = UnsupportedError(
 class _$ImageStateTearOff {
   const _$ImageStateTearOff();
 
-  _ImageState call(
-      {Image image = const Image(progress: 0.0), String imageId = ""}) {
+  _ImageState call({double progress = 0.0}) {
     return _ImageState(
-      image: image,
-      imageId: imageId,
+      progress: progress,
     );
   }
 }
@@ -32,8 +30,7 @@ const $ImageState = _$ImageStateTearOff();
 
 /// @nodoc
 mixin _$ImageState {
-  Image get image => throw _privateConstructorUsedError;
-  String get imageId => throw _privateConstructorUsedError;
+  double get progress => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $ImageStateCopyWith<ImageState> get copyWith =>
@@ -45,9 +42,7 @@ abstract class $ImageStateCopyWith<$Res> {
   factory $ImageStateCopyWith(
           ImageState value, $Res Function(ImageState) then) =
       _$ImageStateCopyWithImpl<$Res>;
-  $Res call({Image image, String imageId});
-
-  $ImageCopyWith<$Res> get image;
+  $Res call({double progress});
 }
 
 /// @nodoc
@@ -60,26 +55,14 @@ class _$ImageStateCopyWithImpl<$Res> implements $ImageStateCopyWith<$Res> {
 
   @override
   $Res call({
-    Object? image = freezed,
-    Object? imageId = freezed,
+    Object? progress = freezed,
   }) {
     return _then(_value.copyWith(
-      image: image == freezed
-          ? _value.image
-          : image // ignore: cast_nullable_to_non_nullable
-              as Image,
-      imageId: imageId == freezed
-          ? _value.imageId
-          : imageId // ignore: cast_nullable_to_non_nullable
-              as String,
+      progress: progress == freezed
+          ? _value.progress
+          : progress // ignore: cast_nullable_to_non_nullable
+              as double,
     ));
-  }
-
-  @override
-  $ImageCopyWith<$Res> get image {
-    return $ImageCopyWith<$Res>(_value.image, (value) {
-      return _then(_value.copyWith(image: value));
-    });
   }
 }
 
@@ -89,10 +72,7 @@ abstract class _$ImageStateCopyWith<$Res> implements $ImageStateCopyWith<$Res> {
           _ImageState value, $Res Function(_ImageState) then) =
       __$ImageStateCopyWithImpl<$Res>;
   @override
-  $Res call({Image image, String imageId});
-
-  @override
-  $ImageCopyWith<$Res> get image;
+  $Res call({double progress});
 }
 
 /// @nodoc
@@ -107,18 +87,13 @@ class __$ImageStateCopyWithImpl<$Res> extends _$ImageStateCopyWithImpl<$Res>
 
   @override
   $Res call({
-    Object? image = freezed,
-    Object? imageId = freezed,
+    Object? progress = freezed,
   }) {
     return _then(_ImageState(
-      image: image == freezed
-          ? _value.image
-          : image // ignore: cast_nullable_to_non_nullable
-              as Image,
-      imageId: imageId == freezed
-          ? _value.imageId
-          : imageId // ignore: cast_nullable_to_non_nullable
-              as String,
+      progress: progress == freezed
+          ? _value.progress
+          : progress // ignore: cast_nullable_to_non_nullable
+              as double,
     ));
   }
 }
@@ -126,20 +101,15 @@ class __$ImageStateCopyWithImpl<$Res> extends _$ImageStateCopyWithImpl<$Res>
 /// @nodoc
 
 class _$_ImageState extends _ImageState {
-  const _$_ImageState(
-      {this.image = const Image(progress: 0.0), this.imageId = ""})
-      : super._();
+  const _$_ImageState({this.progress = 0.0}) : super._();
 
   @JsonKey()
   @override
-  final Image image;
-  @JsonKey()
-  @override
-  final String imageId;
+  final double progress;
 
   @override
   String toString() {
-    return 'ImageState(image: $image, imageId: $imageId)';
+    return 'ImageState(progress: $progress)';
   }
 
   @override
@@ -147,15 +117,12 @@ class _$_ImageState extends _ImageState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _ImageState &&
-            const DeepCollectionEquality().equals(other.image, image) &&
-            const DeepCollectionEquality().equals(other.imageId, imageId));
+            const DeepCollectionEquality().equals(other.progress, progress));
   }
 
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(image),
-      const DeepCollectionEquality().hash(imageId));
+  int get hashCode =>
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(progress));
 
   @JsonKey(ignore: true)
   @override
@@ -164,13 +131,11 @@ class _$_ImageState extends _ImageState {
 }
 
 abstract class _ImageState extends ImageState {
-  const factory _ImageState({Image image, String imageId}) = _$_ImageState;
+  const factory _ImageState({double progress}) = _$_ImageState;
   const _ImageState._() : super._();
 
   @override
-  Image get image;
-  @override
-  String get imageId;
+  double get progress;
   @override
   @JsonKey(ignore: true)
   _$ImageStateCopyWith<_ImageState> get copyWith =>

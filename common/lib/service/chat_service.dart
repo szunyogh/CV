@@ -20,13 +20,13 @@ class ChatService {
         .collection('chat')
         .orderBy('dateSent', descending: true)
         .snapshots()
-        .map(
-          (event) => event.docs.map((e) {
-            final json = e.data();
-            json.addAll({"id": e.id});
-            return Chat.fromJson(json);
-          }).toList(),
-        );
+        .map((event) {
+      return event.docs.map((e) {
+        final json = e.data();
+        json.addAll({"id": e.id});
+        return Chat.fromJson(json);
+      }).toList();
+    });
   }
 
   Stream<bool> getTyping(String id) {
@@ -59,7 +59,12 @@ class ChatService {
 
     WriteBatch batch = FirebaseFirestore.instance.batch();
 
-    return await chat.collection('chat').where('isUpload', isEqualTo: false).get().then((querySnapshot) {
+    return await chat
+        .collection('chat')
+        .where('isUpload', isEqualTo: false)
+        .where("picture", isEqualTo: "")
+        .get()
+        .then((querySnapshot) {
       if (querySnapshot.docs.isNotEmpty) {
         for (var document in querySnapshot.docs) {
           if ((document.data()['picture'] as String).isEmpty) {

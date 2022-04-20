@@ -1,11 +1,12 @@
 import 'dart:math';
-
+import 'package:extended_image/extended_image.dart';
 import 'package:common/logic/auth_logic.dart';
 import 'package:common/logic/profile_logic.dart';
 import 'package:common/model/response/chat.dart';
 import 'package:common/model/response/profile.dart';
 import 'package:common/ui/widget/circle_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:common/ui/widget/chat_bubble.dart';
 import 'package:common/logic/chat_logic.dart';
@@ -13,7 +14,7 @@ import 'package:common/ui/widget/typing_indicator.dart';
 import 'package:common/ui/widget/picture_bubble.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:common/logic/image_logic.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:mobile_cv/ui/page/photo_view.dart';
 
 class ChatPage extends ConsumerStatefulWidget {
   const ChatPage({Key? key}) : super(key: key);
@@ -22,9 +23,10 @@ class ChatPage extends ConsumerStatefulWidget {
   ConsumerState<ChatPage> createState() => _ChatPageState();
 }
 
-class _ChatPageState extends ConsumerState<ChatPage> {
+class _ChatPageState extends ConsumerState<ChatPage> with WidgetsBindingObserver {
   @override
   void initState() {
+    WidgetsBinding.instance?.addObserver(this);
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
       await WidgetsBinding.instance?.endOfFrame;
       stream();
@@ -34,6 +36,21 @@ class _ChatPageState extends ConsumerState<ChatPage> {
 
   void stream() async {
     await ref.read(chatLogic.notifier).initialize();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
+      ref.read(chatLogic.notifier).typingStatus(false);
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance?.removeObserver(this);
+    ref.read(chatLogic.notifier).dispose();
+    super.dispose();
   }
 
   @override
@@ -51,13 +68,17 @@ class _ChatPageState extends ConsumerState<ChatPage> {
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
-                padding: const EdgeInsets.fromLTRB(20, 10, 13, 0),
-                itemCount: chats.length,
-                reverse: true,
-                itemBuilder: (c, i) {
-                  return ListItem(chat: chats[i], uId: uId);
-                }),
+            child: chats.isEmpty
+                ? EmptyWidget(profile: profile)
+                : ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(20, 10, 13, 0),
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: chats.length,
+                    reverse: true,
+                    itemBuilder: (c, i) {
+                      final sawIndex = chats.indexWhere((val) => val.isSee == true && val.sender == uId);
+                      return ListItem(chat: chats[i], isSender: uId == chats[i].sender, isSaw: sawIndex == i);
+                    }),
           ),
           Align(
             alignment: Alignment.bottomLeft,
@@ -96,6 +117,16 @@ class EmptyWidget extends StatelessWidget {
                 height: 90,
                 width: 90,
                 fit: BoxFit.cover,
+                errorBuilder: (c, o, s) {
+                  return Container(
+                    height: 90,
+                    width: 90,
+                    decoration: BoxDecoration(
+                      color: Colors.black12,
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                  );
+                },
               ),
             ),
             const SizedBox(height: 20),
@@ -114,36 +145,59 @@ class EmptyWidget extends StatelessWidget {
 
 class ListItem extends ConsumerWidget {
   final Chat chat;
-  final String uId;
+  final bool isSender;
+  final bool isSaw;
   const ListItem({
     Key? key,
     required this.chat,
-    required this.uId,
+    required this.isSender,
+    this.isSaw = false,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     double maxWidth = MediaQuery.of(context).size.width / 1.65;
     if (chat.isPicture) {
-      final uploadState = ref.watch(imageLogic(chat.id)).image;
+      final progress = ref.watch(imageLogic(chat.id)).progress;
       return PictureBubble(
-        isSender: uId == chat.sender,
+        isSender: isSender,
         picture: chat.picture,
-        isShowIndicator: uploadState.state == TaskState.running,
-        progress: uploadState.progress,
-        isSaw: chat.isSee,
-        onTap: () {},
+        isShowIndicator: !chat.isUpload,
+        progress: progress,
+        isSaw: isSaw,
+        onTap: () {
+          Navigator.of(context).push(_createRoute(PhotoView(picture: chat.picture)));
+        },
         maxWidth: maxWidth,
+        errorMessage: chat.isUpload ? "Hiba a kép betöltése során" : "A kép feltöltése folyamatban",
       );
     }
     return ChatBubble(
       maxWidth: maxWidth,
-      isSender: uId == chat.sender,
+      isSender: isSender,
       message: chat.message,
-      isSaw: chat.isSee,
+      isSaw: isSaw,
       isShowIndicator: !chat.isUpload,
-      onLongPress: () {},
+      onLongPress: () {
+        Clipboard.setData(ClipboardData(text: chat.message)).then((_) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              backgroundColor: Colors.green,
+              content: Text("Sikeresen a vágólapra másolva!"),
+            ),
+          );
+        });
+      },
     );
+  }
+
+  Route _createRoute(Widget child) {
+    return PageRouteBuilder(
+        opaque: false,
+        barrierColor: Colors.transparent,
+        pageBuilder: (BuildContext context, _, __) {
+          return child;
+        });
   }
 }
 

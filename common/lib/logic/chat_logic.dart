@@ -23,28 +23,53 @@ class ChatLogic extends BaseLogic<ChatState> {
 
   User get user => read(authenticationLogic).currentUser;
 
+  ConnectivityResult connectivity = ConnectivityResult.none;
+
+  StreamSubscription<ConnectivityResult>? connectivityStream;
+  StreamSubscription<List<Chat>>? chatListStream;
+  StreamSubscription<bool>? typingStream;
+
   @override
   Future<void> initialize() async {
     await getTyping();
-    repo.getMessages(user.id).listen((event) async {
-      state = state.copyWith(chats: event);
-      updateMessageSaw();
-      final connectivity = await Connectivity().checkConnectivity();
+    connectivityStream = Connectivity().onConnectivityChanged.listen((_connectivity) {
+      connectivity = _connectivity;
       if (connectivity != ConnectivityResult.none) {
-        if (!isFirst) {
-          final uploadList = event.where((element) => element.isUpload == false && element.picture.isNotEmpty).toList();
-          for (var item in uploadList) {
-            read(imageLogic(item.id).notifier).uploadImage(XFile(item.picture));
-          }
-          isFirst = true;
-        }
+        updateMessageSaw();
+        updateMessage();
+        updateImage(state.chats);
+      }
+    });
+    chatListStream = repo.getMessages(user.id).listen((event) async {
+      state = state.copyWith(chats: event);
+      if (connectivity != ConnectivityResult.none) {
+        updateMessageSaw();
+        updateImage(event);
         updateMessage();
       }
     });
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    connectivityStream?.cancel();
+    chatListStream?.cancel();
+    typingStream?.cancel();
+  }
+
+  void updateImage(List<Chat> chats) {
+    if (!isFirst) {
+      final uploadList = state.chats.where((element) => element.isUpload == false && element.picture.isNotEmpty).toList();
+      for (var item in uploadList) {
+        read(imageLogic(item.id).notifier).uploadImage(XFile(item.picture));
+      }
+      isFirst = true;
+    }
+  }
+
   Future<void> getTyping() async {
-    repo.getTyping(user.id).listen((event) async {
+    typingStream = repo.getTyping(user.id).listen((event) async {
       state = state.copyWith(isTyping: event);
     });
   }

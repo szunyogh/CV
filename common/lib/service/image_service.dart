@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:common/model/response/image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -9,9 +8,9 @@ class ImageService {
     return await FirebaseFirestore.instance.collection('users').doc(id).collection('chat').doc(data["id"]).set(data);
   }
 
-  Stream<Image> uploadImage(String id, XFile file) {
+  Stream<TaskSnapshot> uploadImage(String id, XFile file) {
     return FirebaseStorage.instance.ref('$id/${file.name}').putFile(File(file.path)).snapshotEvents.map((event) {
-      return Image(progress: event.bytesTransferred / event.totalBytes, state: event.state);
+      return event;
     });
   }
 

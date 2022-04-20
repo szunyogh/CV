@@ -5,5 +5,5 @@ abstract class BaseLogic<T> extends StateNotifier<T> {
 
   BaseLogic(this.read, T state) : super(state);
 
-  Future<void> initialize() async {}
+  Future<void> initialize();
 }

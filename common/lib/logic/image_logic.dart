@@ -17,14 +17,14 @@ class ImageLogic extends BaseLogic<ImageState> {
 
   IImageRepository get repo => read(imageRepo);
 
-  User get user => read(authenticationLogic).currentUser;
+  String get userId => read(authenticationLogic).userId;
 
   @override
-  Future<void> initialize();
+  Future<void> initialize() async {}
 
   Future<void> uploadImage(XFile file) async {
-    repo.uploadImage(user.id, file).listen((event) async {
-      state = state.copyWith(image: event);
+    repo.uploadImage(userId, file).listen((event) async {
+      state = state.copyWith(progress: (event.bytesTransferred / event.totalBytes));
       if (event.state == TaskState.success) {
         final picture = await downloadImage(file);
         sendImage(picture);
@@ -35,22 +35,21 @@ class ImageLogic extends BaseLogic<ImageState> {
   }
 
   Future<String> downloadImage(XFile file) async {
-    return repo.downloadImage(user.id, file);
+    return repo.downloadImage(userId, file);
   }
 
   Future<void> getImage(XFile? file) async {
     if (file == null) return;
-    final request = Chat(id: id, dateSent: DateTime.now(), picture: file.path, sender: user.id);
-    await repo.getImage(request.toJson(), user.id);
+    final request = Chat(id: id, dateSent: DateTime.now(), picture: file.path, sender: userId);
+    await repo.getImage(request.toJson(), userId);
     uploadImage(file);
-    state = state.copyWith(imageId: id);
   }
 
   Future<void> sendImage(String picture) async {
-    await repo.sendImage(user.id, id, picture);
+    await repo.sendImage(userId, id, picture);
   }
 
   Future<void> removeImage() async {
-    await repo.removeImage(user.id, id);
+    await repo.removeImage(userId, id);
   }
 }

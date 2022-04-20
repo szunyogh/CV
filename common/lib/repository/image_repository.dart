@@ -1,6 +1,6 @@
-import 'package:common/model/response/image.dart';
 import 'package:common/repository/interface/image_interface.dart';
 import 'package:common/service/image_service.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -39,7 +39,7 @@ class ImageRepository implements IImageRepository {
   }
 
   @override
-  Stream<Image> uploadImage(String id, XFile file) {
+  Stream<TaskSnapshot> uploadImage(String id, XFile file) {
     try {
       return service.uploadImage(id, file);
     } catch (err) {

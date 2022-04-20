@@ -30,6 +30,11 @@ class _SendIndicatorState extends State<SendIndicator> with TickerProviderStateM
       begin: 0.0,
       end: 20.0,
     ));
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      if (widget.showIndicator) {
+        _showIndicator();
+      }
+    });
   }
 
   @override
