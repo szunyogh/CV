@@ -159,17 +159,17 @@ class ListItem extends ConsumerWidget {
     double maxWidth = MediaQuery.of(context).size.width / 1.65;
     if (chat.isPicture) {
       final progress = ref.watch(imageLogic(chat.id)).progress;
-      return PictureBubble(
-        isSender: isSender,
+      return PhotoViewWidget(
         picture: chat.picture,
-        isShowIndicator: !chat.isUpload,
-        progress: progress,
-        isSaw: isSaw,
-        onTap: () {
-          Navigator.of(context).push(_createRoute(PhotoView(picture: chat.picture)));
-        },
-        maxWidth: maxWidth,
-        errorMessage: chat.isUpload ? "Hiba a kép betöltése során" : "A kép feltöltése folyamatban",
+        child: PictureBubble(
+          isSender: isSender,
+          picture: chat.picture,
+          isShowIndicator: !chat.isUpload,
+          progress: progress,
+          isSaw: isSaw,
+          maxWidth: maxWidth,
+          errorMessage: chat.isUpload ? "Hiba a kép betöltése során" : "A kép feltöltése folyamatban",
+        ),
       );
     }
     return ChatBubble(
@@ -189,15 +189,6 @@ class ListItem extends ConsumerWidget {
         });
       },
     );
-  }
-
-  Route _createRoute(Widget child) {
-    return PageRouteBuilder(
-        opaque: false,
-        barrierColor: Colors.transparent,
-        pageBuilder: (BuildContext context, _, __) {
-          return child;
-        });
   }
 }
 
