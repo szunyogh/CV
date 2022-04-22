@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'package:extended_image/extended_image.dart';
 import 'package:common/logic/auth_logic.dart';
 import 'package:common/logic/profile_logic.dart';
 import 'package:common/model/response/chat.dart';
@@ -26,12 +25,12 @@ class ChatPage extends ConsumerStatefulWidget {
 class _ChatPageState extends ConsumerState<ChatPage> with WidgetsBindingObserver {
   @override
   void initState() {
-    WidgetsBinding.instance?.addObserver(this);
+    super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
       await WidgetsBinding.instance?.endOfFrame;
       stream();
     });
-    super.initState();
+    WidgetsBinding.instance?.addObserver(this);
   }
 
   void stream() async {

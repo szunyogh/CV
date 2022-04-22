@@ -1,6 +1,7 @@
 import 'package:common/ui/theme/theme.dart';
 import 'package:common/ui/widget/custom_button.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_cv/helper/custom_rout.dart';
 
 class MenuItem {
   final String name;
@@ -43,6 +44,22 @@ class MenuWidget extends StatefulWidget {
 
 class _MenuWidgetState extends State<MenuWidget> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  late List<String> routs;
+
+  @override
+  void initState() {
+    super.initState();
+    routs = widget.menuitems.map((e) => e.name.toLowerCase()).toList();
+  }
+
+  @override
+  void didUpdateWidget(covariant MenuWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.selectedMenu != widget.selectedMenu) {
+      navigatorKey.currentState?.pushReplacementNamed(routs[widget.selectedMenu]);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,9 +67,15 @@ class _MenuWidgetState extends State<MenuWidget> {
       key: _scaffoldKey,
       body: Stack(
         children: [
-          IndexedStack(
-            index: widget.selectedMenu,
-            children: widget.pages,
+          Navigator(
+            key: navigatorKey,
+            initialRoute: routs.first,
+            onGenerateRoute: (routeSettings) {
+              int index = routs.indexWhere((element) => element == routeSettings.name);
+              return MyCustomRoute(
+                builder: (context) => widget.pages[index],
+              );
+            },
           ),
           Positioned(
             left: 10,

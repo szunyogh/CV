@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:common/model/response/profile.dart';
 import 'package:common/ui/theme/theme.dart';
 import 'package:mobile_cv/helper/custom_rout.dart';
+import 'package:mobile_cv/ui/application.dart';
 import 'package:mobile_cv/ui/page/experience_details.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:common/logic/profile_logic.dart';
@@ -265,7 +266,7 @@ class ExperienceCard extends ConsumerWidget {
       }
       widgets.add(InkWell(
         onTap: () {
-          Navigator.of(context).push(
+          globalNavigatorKey.currentState?.push(
             MyCustomRoute(
               builder: (context) => ExperienceDetails(experience: experience[i]),
             ),

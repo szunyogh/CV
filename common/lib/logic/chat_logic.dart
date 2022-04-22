@@ -8,6 +8,7 @@ import 'package:common/model/response/user.dart';
 import 'package:common/model/state/chat_state.dart';
 import 'package:common/repository/chat_repository.dart';
 import 'package:common/repository/interface/chat_interface.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:image_picker/image_picker.dart';
@@ -40,7 +41,11 @@ class ChatLogic extends BaseLogic<ChatState> {
         updateImage(state.chats);
       }
     });
-    chatListStream = repo.getMessages(user.id).listen((event) async {
+    chatListStream = await getMessage();
+  }
+
+  Future<StreamSubscription<List<Chat>>> getMessage() async {
+    return repo.getMessages(user.id).listen((event) async {
       state = state.copyWith(chats: event);
       if (connectivity != ConnectivityResult.none) {
         updateMessageSaw();

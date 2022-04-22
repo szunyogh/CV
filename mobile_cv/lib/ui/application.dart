@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:common/ui/theme/theme.dart';
-import 'package:mobile_cv/ui/widget/root.dart';
+import 'package:mobile_cv/ui/page/root.dart';
+
+final GlobalKey<NavigatorState> globalNavigatorKey = GlobalKey<NavigatorState>();
 
 class Application extends StatelessWidget {
   const Application({Key? key}) : super(key: key);
@@ -10,7 +12,8 @@ class Application extends StatelessWidget {
     return MaterialApp(
       title: 'Szunyogh Tamas - CV',
       theme: customTheme,
-      home: const RootWidget(),
+      home: const Root(),
+      navigatorKey: globalNavigatorKey,
     );
   }
 }

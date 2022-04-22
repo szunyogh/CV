@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_cv/ui/application.dart';
 
 class PhotoViewWidget extends StatelessWidget {
   final Widget child;
@@ -13,8 +14,7 @@ class PhotoViewWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
+        globalNavigatorKey.currentState?.push(
           PageRouteBuilder(
               opaque: false,
               barrierColor: Colors.transparent,
