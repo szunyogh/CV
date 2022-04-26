@@ -15,4 +15,6 @@ abstract class IChatRepository {
   Stream<List<Chat>> getMessages(String id);
 
   Stream<bool> getTyping(String id);
+
+  Stream<int> getBadsge(String id);
 }

@@ -54,6 +54,17 @@ class ChatService {
     return await client.post(Uri.parse(url), headers: header, body: json.encode(request));
   }
 
+  Stream<int> getBadsge(String id) {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(id)
+        .collection('chat')
+        .where('sender', isNotEqualTo: id)
+        .where('isSee', isEqualTo: false)
+        .snapshots()
+        .map((event) => event.docs.length);
+  }
+
   Future<void> updateMessage(String id) async {
     DocumentReference<Map<String, dynamic>> chat = FirebaseFirestore.instance.collection('users').doc(id);
 

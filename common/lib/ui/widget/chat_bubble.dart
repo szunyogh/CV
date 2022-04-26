@@ -58,3 +58,6 @@ class ChatBubble extends StatelessWidget {
     );
   }
 }
+
+/*ColorFiltered(
+              colorFilter: ColorFilter.mode(Colors.white, isSender ? BlendMode.srcOut : BlendMode.dstATop), */

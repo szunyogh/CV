@@ -1,5 +1,6 @@
+import 'dart:async';
 import 'dart:math';
-
+import 'package:just_audio/just_audio.dart';
 import 'package:flutter/material.dart';
 
 class TypingIndicator extends StatefulWidget {
@@ -32,6 +33,8 @@ class _TypingIndicatorState extends State<TypingIndicator> with TickerProviderSt
     Interval(0.35, 0.9),
     Interval(0.45, 1.0),
   ];
+  final player = AudioPlayer();
+  Timer? timer;
 
   @override
   void initState() {
@@ -82,10 +85,20 @@ class _TypingIndicatorState extends State<TypingIndicator> with TickerProviderSt
   void dispose() {
     _appearanceController.dispose();
     _repeatingController.dispose();
+    timer?.cancel();
+    player.dispose();
     super.dispose();
   }
 
-  void _showIndicator() {
+  void _showIndicator() async {
+    final duration = await player.setAsset('assets/audio/typing.mp3');
+    if (duration != null) {
+      player.play();
+      timer = Timer.periodic(duration + const Duration(milliseconds: 200), (timer) {
+        player.seek(Duration.zero);
+      });
+    }
+    Timer.periodic(const Duration(milliseconds: 1000), (_) {});
     _appearanceController
       ..duration = const Duration(milliseconds: 750)
       ..forward();
@@ -93,6 +106,8 @@ class _TypingIndicatorState extends State<TypingIndicator> with TickerProviderSt
   }
 
   void _hideIndicator() {
+    timer?.cancel();
+    player.stop();
     _appearanceController
       ..duration = const Duration(milliseconds: 150)
       ..reverse();
@@ -138,7 +153,7 @@ class _TypingIndicatorState extends State<TypingIndicator> with TickerProviderSt
       width: 85,
       height: 44,
       padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
-      margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+      margin: const EdgeInsets.fromLTRB(0, 10, 20, 10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(27),
         color: widget.bubbleColor,

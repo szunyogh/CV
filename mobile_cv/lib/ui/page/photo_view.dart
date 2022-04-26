@@ -79,6 +79,7 @@ class _PhotoViewState extends State<PhotoView> with TickerProviderStateMixin {
       } else {
         scaleFactor = 1.0;
         initalPositionX = 0.0;
+        initalPositionY = 0.0;
       }
       if (scaleFactor > 1.0) {
         initalPositionX += details.focalPointDelta.dx;
@@ -103,7 +104,7 @@ class _PhotoViewState extends State<PhotoView> with TickerProviderStateMixin {
           initalScaleFactor = 0.0;
         });
       } else {
-        if (initalPositionY > 0) {
+        if (animationController.value <= 0.5) {
           animationController.reverse();
           Navigator.of(context).pop();
         } else {

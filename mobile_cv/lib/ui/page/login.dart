@@ -1,5 +1,4 @@
 import 'package:common/logic/auth_logic.dart';
-import 'package:common/ui/theme/theme.dart';
 import 'package:common/ui/widget/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

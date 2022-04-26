@@ -8,7 +8,6 @@ import 'package:common/model/response/user.dart';
 import 'package:common/model/state/chat_state.dart';
 import 'package:common/repository/chat_repository.dart';
 import 'package:common/repository/interface/chat_interface.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:image_picker/image_picker.dart';
@@ -18,7 +17,7 @@ final chatLogic = StateNotifierProvider<ChatLogic, ChatState>((ref) => ChatLogic
 class ChatLogic extends BaseLogic<ChatState> {
   ChatLogic(Reader read) : super(read, const ChatState());
 
-  bool isFirst = false;
+  bool oneTimeRun = false;
 
   IChatRepository get repo => read(chatRepo);
 
@@ -26,22 +25,19 @@ class ChatLogic extends BaseLogic<ChatState> {
 
   ConnectivityResult connectivity = ConnectivityResult.none;
 
-  StreamSubscription<ConnectivityResult>? connectivityStream;
-  StreamSubscription<List<Chat>>? chatListStream;
-  StreamSubscription<bool>? typingStream;
-
   @override
-  Future<void> initialize() async {
-    await getTyping();
-    connectivityStream = Connectivity().onConnectivityChanged.listen((_connectivity) {
+  Future<StreamSubscription<ConnectivityResult>> initialize({bool initialize = false}) async {
+    if (initialize) {
+      await read(authenticationLogic.notifier).initialize();
+    }
+    return Connectivity().onConnectivityChanged.listen((_connectivity) {
       connectivity = _connectivity;
-      if (connectivity != ConnectivityResult.none) {
+      if (_connectivity != ConnectivityResult.none) {
         updateMessageSaw();
         updateMessage();
         updateImage(state.chats);
       }
     });
-    chatListStream = await getMessage();
   }
 
   Future<StreamSubscription<List<Chat>>> getMessage() async {
@@ -55,26 +51,24 @@ class ChatLogic extends BaseLogic<ChatState> {
     });
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    connectivityStream?.cancel();
-    chatListStream?.cancel();
-    typingStream?.cancel();
+  Future<void> getBadge() async {
+    repo.getBadsge(user.id).listen((event) {
+      state = state.copyWith(badgeCount: event);
+    });
   }
 
   void updateImage(List<Chat> chats) {
-    if (!isFirst) {
+    if (!oneTimeRun) {
       final uploadList = state.chats.where((element) => element.isUpload == false && element.picture.isNotEmpty).toList();
       for (var item in uploadList) {
         read(imageLogic(item.id).notifier).uploadImage(XFile(item.picture));
       }
-      isFirst = true;
+      oneTimeRun = true;
     }
   }
 
-  Future<void> getTyping() async {
-    typingStream = repo.getTyping(user.id).listen((event) async {
+  Future<StreamSubscription<bool>> getTyping() async {
+    return repo.getTyping(user.id).listen((event) async {
       state = state.copyWith(isTyping: event);
     });
   }

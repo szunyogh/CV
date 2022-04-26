@@ -14,27 +14,35 @@ import 'package:common/ui/widget/picture_bubble.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:common/logic/image_logic.dart';
 import 'package:mobile_cv/ui/page/photo_view.dart';
+import 'dart:async';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class ChatPage extends ConsumerStatefulWidget {
-  const ChatPage({Key? key}) : super(key: key);
+  final bool initialize;
+  const ChatPage({
+    Key? key,
+    this.initialize = false,
+  }) : super(key: key);
 
   @override
   ConsumerState<ChatPage> createState() => _ChatPageState();
 }
 
 class _ChatPageState extends ConsumerState<ChatPage> with WidgetsBindingObserver {
+  StreamSubscription<ConnectivityResult>? connectivityStream;
+  StreamSubscription<List<Chat>>? chatListStream;
+  StreamSubscription<bool>? typingStream;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
       await WidgetsBinding.instance?.endOfFrame;
-      stream();
+      connectivityStream = await ref.read(chatLogic.notifier).initialize(initialize: widget.initialize);
+      chatListStream = await ref.read(chatLogic.notifier).getMessage();
+      typingStream = await ref.read(chatLogic.notifier).getTyping();
     });
     WidgetsBinding.instance?.addObserver(this);
-  }
-
-  void stream() async {
-    await ref.read(chatLogic.notifier).initialize();
   }
 
   @override
@@ -47,8 +55,10 @@ class _ChatPageState extends ConsumerState<ChatPage> with WidgetsBindingObserver
 
   @override
   void dispose() {
+    connectivityStream?.cancel();
+    chatListStream?.cancel();
+    typingStream?.cancel();
     WidgetsBinding.instance?.removeObserver(this);
-    ref.read(chatLogic.notifier).dispose();
     super.dispose();
   }
 
@@ -72,20 +82,22 @@ class _ChatPageState extends ConsumerState<ChatPage> with WidgetsBindingObserver
                 : ListView.builder(
                     padding: const EdgeInsets.fromLTRB(20, 10, 13, 0),
                     physics: const BouncingScrollPhysics(),
-                    itemCount: chats.length,
+                    itemCount: chats.length + 1,
                     reverse: true,
                     itemBuilder: (c, i) {
                       final sawIndex = chats.indexWhere((val) => val.isSee == true && val.sender == uId);
-                      return ListItem(chat: chats[i], isSender: uId == chats[i].sender, isSaw: sawIndex == i);
+                      if (i == 0) {
+                        return Align(
+                          alignment: Alignment.bottomLeft,
+                          child: TypingIndicator(
+                            bubbleColor: Colors.grey[300]!,
+                            flashingCircleDarkColor: Colors.grey,
+                            showIndicator: isTyping,
+                          ),
+                        );
+                      }
+                      return ListItem(chat: chats[i - 1], isSender: uId == chats[i - 1].sender, isSaw: sawIndex == i - 1);
                     }),
-          ),
-          Align(
-            alignment: Alignment.bottomLeft,
-            child: TypingIndicator(
-              bubbleColor: Colors.grey[300]!,
-              flashingCircleDarkColor: Colors.grey,
-              showIndicator: isTyping,
-            ),
           ),
           const BottomBar(),
         ],

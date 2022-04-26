@@ -7,7 +7,13 @@ class MenuItem {
   final String name;
   final IconData icon;
   final Color color;
-  MenuItem({required this.name, required this.icon, this.color = Colors.black});
+  final Widget? subWidget;
+  MenuItem({
+    required this.name,
+    required this.icon,
+    this.color = Colors.black,
+    this.subWidget,
+  });
 }
 
 class MenuHeader {
@@ -168,7 +174,7 @@ class _MenuWidgetState extends State<MenuWidget> {
                   },
                   child: Container(
                     margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                    padding: const EdgeInsets.fromLTRB(15, 10, 0, 10),
+                    padding: const EdgeInsets.fromLTRB(15, 10, 10, 10),
                     decoration: BoxDecoration(
                       color: widget.selectedMenu == index ? blueColor : Colors.transparent,
                       borderRadius: BorderRadius.circular(15),
@@ -185,7 +191,10 @@ class _MenuWidgetState extends State<MenuWidget> {
                           style: TextStyle(
                             color: widget.selectedMenu == index ? Colors.white : e.color,
                           ),
-                        )
+                        ),
+                        const Spacer(),
+                        const SizedBox(width: 10),
+                        e.subWidget ?? Container(),
                       ],
                     ),
                   ),

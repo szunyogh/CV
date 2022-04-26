@@ -77,4 +77,13 @@ class ChatRepository implements IChatRepository {
       throw Exception();
     }
   }
+
+  @override
+  Stream<int> getBadsge(String id) {
+    try {
+      return service.getBadsge(id);
+    } catch (err) {
+      throw Exception();
+    }
+  }
 }

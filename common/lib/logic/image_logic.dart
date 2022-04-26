@@ -1,7 +1,6 @@
 import 'package:common/logic/auth_logic.dart';
 import 'package:common/logic/base.dart';
 import 'package:common/model/response/chat.dart';
-import 'package:common/model/response/user.dart';
 import 'package:common/model/state/image_state.dart';
 import 'package:common/repository/image_repository.dart';
 import 'package:common/repository/interface/image_interface.dart';

@@ -26,11 +26,11 @@ dependencies:
   percent_indicator: ^3.4.0
   image_picker: ^0.8.5
   connectivity_plus: ^2.3.0
-  audioplayers: ^0.20.1
   freezed_annotation: ^1.1.0
   json_annotation: ^4.4.0
   collection: ^1.15.0
   cached_network_image: ^3.2.0
+  just_audio: ^0.9.20
 
 dev_dependencies:
   flutter_test:
@@ -48,6 +48,9 @@ flutter:
 
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/assets-and-images/#from-packages
+
+  assets:
+    - assets/audio/
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

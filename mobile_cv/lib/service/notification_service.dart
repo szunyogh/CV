@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -21,8 +22,10 @@ class NotificationService {
 
     final InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
 
-    await flutterLocalNotificationsPlugin!
-        .initialize(initializationSettings, onSelectNotification: (val) => onSelectNotification(val));
+    await flutterLocalNotificationsPlugin!.initialize(initializationSettings, onSelectNotification: (val) {
+      flutterLocalNotificationsPlugin!.cancelAll();
+      onSelectNotification(val);
+    });
   }
 
   Future<void> showNotification(int id, String title, String body) async {
@@ -51,6 +54,8 @@ class NotificationService {
         'message_channel', 'Message',
         description: 'Message',
         importance: Importance.max,
+        enableLights: true,
+        ledColor: Colors.green,
         groupId: "message_group",
         sound: RawResourceAndroidNotificationSound('sound'));
 

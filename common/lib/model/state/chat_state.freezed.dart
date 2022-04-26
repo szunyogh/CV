@@ -18,10 +18,14 @@ final _privateConstructorUsedError = UnsupportedError(
 class _$ChatStateTearOff {
   const _$ChatStateTearOff();
 
-  _ChatState call({List<Chat> chats = const [], bool isTyping = false}) {
+  _ChatState call(
+      {List<Chat> chats = const [],
+      bool isTyping = false,
+      int badgeCount = 0}) {
     return _ChatState(
       chats: chats,
       isTyping: isTyping,
+      badgeCount: badgeCount,
     );
   }
 }
@@ -33,6 +37,7 @@ const $ChatState = _$ChatStateTearOff();
 mixin _$ChatState {
   List<Chat> get chats => throw _privateConstructorUsedError;
   bool get isTyping => throw _privateConstructorUsedError;
+  int get badgeCount => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $ChatStateCopyWith<ChatState> get copyWith =>
@@ -43,7 +48,7 @@ mixin _$ChatState {
 abstract class $ChatStateCopyWith<$Res> {
   factory $ChatStateCopyWith(ChatState value, $Res Function(ChatState) then) =
       _$ChatStateCopyWithImpl<$Res>;
-  $Res call({List<Chat> chats, bool isTyping});
+  $Res call({List<Chat> chats, bool isTyping, int badgeCount});
 }
 
 /// @nodoc
@@ -58,6 +63,7 @@ class _$ChatStateCopyWithImpl<$Res> implements $ChatStateCopyWith<$Res> {
   $Res call({
     Object? chats = freezed,
     Object? isTyping = freezed,
+    Object? badgeCount = freezed,
   }) {
     return _then(_value.copyWith(
       chats: chats == freezed
@@ -68,6 +74,10 @@ class _$ChatStateCopyWithImpl<$Res> implements $ChatStateCopyWith<$Res> {
           ? _value.isTyping
           : isTyping // ignore: cast_nullable_to_non_nullable
               as bool,
+      badgeCount: badgeCount == freezed
+          ? _value.badgeCount
+          : badgeCount // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }
@@ -78,7 +88,7 @@ abstract class _$ChatStateCopyWith<$Res> implements $ChatStateCopyWith<$Res> {
           _ChatState value, $Res Function(_ChatState) then) =
       __$ChatStateCopyWithImpl<$Res>;
   @override
-  $Res call({List<Chat> chats, bool isTyping});
+  $Res call({List<Chat> chats, bool isTyping, int badgeCount});
 }
 
 /// @nodoc
@@ -94,6 +104,7 @@ class __$ChatStateCopyWithImpl<$Res> extends _$ChatStateCopyWithImpl<$Res>
   $Res call({
     Object? chats = freezed,
     Object? isTyping = freezed,
+    Object? badgeCount = freezed,
   }) {
     return _then(_ChatState(
       chats: chats == freezed
@@ -104,6 +115,10 @@ class __$ChatStateCopyWithImpl<$Res> extends _$ChatStateCopyWithImpl<$Res>
           ? _value.isTyping
           : isTyping // ignore: cast_nullable_to_non_nullable
               as bool,
+      badgeCount: badgeCount == freezed
+          ? _value.badgeCount
+          : badgeCount // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }
@@ -111,7 +126,8 @@ class __$ChatStateCopyWithImpl<$Res> extends _$ChatStateCopyWithImpl<$Res>
 /// @nodoc
 
 class _$_ChatState extends _ChatState {
-  const _$_ChatState({this.chats = const [], this.isTyping = false})
+  const _$_ChatState(
+      {this.chats = const [], this.isTyping = false, this.badgeCount = 0})
       : super._();
 
   @JsonKey()
@@ -120,10 +136,13 @@ class _$_ChatState extends _ChatState {
   @JsonKey()
   @override
   final bool isTyping;
+  @JsonKey()
+  @override
+  final int badgeCount;
 
   @override
   String toString() {
-    return 'ChatState(chats: $chats, isTyping: $isTyping)';
+    return 'ChatState(chats: $chats, isTyping: $isTyping, badgeCount: $badgeCount)';
   }
 
   @override
@@ -132,14 +151,17 @@ class _$_ChatState extends _ChatState {
         (other.runtimeType == runtimeType &&
             other is _ChatState &&
             const DeepCollectionEquality().equals(other.chats, chats) &&
-            const DeepCollectionEquality().equals(other.isTyping, isTyping));
+            const DeepCollectionEquality().equals(other.isTyping, isTyping) &&
+            const DeepCollectionEquality()
+                .equals(other.badgeCount, badgeCount));
   }
 
   @override
   int get hashCode => Object.hash(
       runtimeType,
       const DeepCollectionEquality().hash(chats),
-      const DeepCollectionEquality().hash(isTyping));
+      const DeepCollectionEquality().hash(isTyping),
+      const DeepCollectionEquality().hash(badgeCount));
 
   @JsonKey(ignore: true)
   @override
@@ -148,13 +170,16 @@ class _$_ChatState extends _ChatState {
 }
 
 abstract class _ChatState extends ChatState {
-  const factory _ChatState({List<Chat> chats, bool isTyping}) = _$_ChatState;
+  const factory _ChatState({List<Chat> chats, bool isTyping, int badgeCount}) =
+      _$_ChatState;
   const _ChatState._() : super._();
 
   @override
   List<Chat> get chats;
   @override
   bool get isTyping;
+  @override
+  int get badgeCount;
   @override
   @JsonKey(ignore: true)
   _$ChatStateCopyWith<_ChatState> get copyWith =>

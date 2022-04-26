@@ -1,4 +1,5 @@
 import 'package:common/logic/base.dart';
+import 'package:common/logic/loader_logic.dart';
 import 'package:common/model/response/user.dart' as user;
 import 'package:common/model/state/auth_state.dart';
 import 'package:common/repository/auth_repository.dart';
@@ -27,8 +28,10 @@ class AuthenticationLogic extends BaseLogic<AuthenticationState> {
   }
 
   Future<void> getUser() async {
+    read(loaderLogic.notifier).showLoader("Betöltés folyamatban...");
     final user = await repo.getUser();
     state = state.copyWith(dto: user);
+    read(loaderLogic.notifier).hideLoader();
   }
 
   Future<void> login() async {

@@ -9,5 +9,6 @@ class ChatState with _$ChatState {
   const factory ChatState({
     @Default([]) List<Chat> chats,
     @Default(false) bool isTyping,
+    @Default(0) int badgeCount,
   }) = _ChatState;
 }
