@@ -16,6 +16,7 @@ import 'package:common/logic/image_logic.dart';
 import 'package:mobile_cv/ui/page/photo_view.dart';
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:mobile_cv/ui/widget/like.dart';
 
 class ChatPage extends ConsumerStatefulWidget {
   final bool initialize;
@@ -79,25 +80,42 @@ class _ChatPageState extends ConsumerState<ChatPage> with WidgetsBindingObserver
           Expanded(
             child: chats.isEmpty
                 ? EmptyWidget(profile: profile)
-                : ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(20, 10, 13, 0),
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: chats.length + 1,
-                    reverse: true,
-                    itemBuilder: (c, i) {
-                      final sawIndex = chats.indexWhere((val) => val.isSee == true && val.sender == uId);
-                      if (i == 0) {
-                        return Align(
-                          alignment: Alignment.bottomLeft,
-                          child: TypingIndicator(
-                            bubbleColor: Colors.grey[300]!,
-                            flashingCircleDarkColor: Colors.grey,
-                            showIndicator: isTyping,
-                          ),
-                        );
-                      }
-                      return ListItem(chat: chats[i - 1], isSender: uId == chats[i - 1].sender, isSaw: sawIndex == i - 1);
-                    }),
+                : GestureDetector(
+                    onTap: () {
+                      FocusScope.of(context).unfocus();
+                    },
+                    child: ListView.builder(
+                        padding: const EdgeInsets.fromLTRB(20, 10, 13, 0),
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: chats.length + 1,
+                        reverse: true,
+                        itemBuilder: (c, i) {
+                          final sawIndex = chats.indexWhere((val) => val.isSee == true && val.sender == uId);
+                          if (i == 0) {
+                            return Align(
+                              alignment: Alignment.bottomLeft,
+                              child: TypingIndicator(
+                                bubbleColor: Colors.grey[300]!,
+                                flashingCircleDarkColor: Colors.grey,
+                                showIndicator: isTyping,
+                              ),
+                            );
+                          }
+                          return LikeWidget(
+                              enabled: !(uId == chats[i - 1].sender),
+                              onChanged: (value) {
+                                ref.read(chatLogic.notifier).updateLike(chats[i - 1].id, value);
+                              },
+                              child: ListItem(
+                                chat: chats[i - 1],
+                                isSender: uId == chats[i - 1].sender,
+                                isSaw: sawIndex == i - 1,
+                                onTap: () {
+                                  ref.read(chatLogic.notifier).deleteLike(chats[i - 1].id);
+                                },
+                              ));
+                        }),
+                  ),
           ),
           const BottomBar(),
         ],
@@ -158,11 +176,13 @@ class ListItem extends ConsumerWidget {
   final Chat chat;
   final bool isSender;
   final bool isSaw;
+  final Function onTap;
   const ListItem({
     Key? key,
     required this.chat,
     required this.isSender,
     this.isSaw = false,
+    required this.onTap,
   }) : super(key: key);
 
   @override
@@ -179,7 +199,9 @@ class ListItem extends ConsumerWidget {
           progress: progress,
           isSaw: isSaw,
           maxWidth: maxWidth,
+          like: chat.like,
           errorMessage: chat.isUpload ? "Hiba a kép betöltése során" : "A kép feltöltése folyamatban",
+          onTap: () => onTap(),
         ),
       );
     }
@@ -189,7 +211,8 @@ class ListItem extends ConsumerWidget {
       message: chat.message,
       isSaw: isSaw,
       isShowIndicator: !chat.isUpload,
-      onLongPress: () {
+      like: chat.like,
+      doubleTap: () {
         Clipboard.setData(ClipboardData(text: chat.message)).then((_) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -199,6 +222,7 @@ class ListItem extends ConsumerWidget {
           );
         });
       },
+      onTap: () => onTap(),
     );
   }
 }

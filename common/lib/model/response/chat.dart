@@ -25,6 +25,7 @@ class Chat with _$Chat {
     @Default("") String message,
     @Default("") String picture,
     @Default("") String sender,
+    @Default("") String like,
   }) = _Chat;
 
   bool get isPicture => picture.isNotEmpty;

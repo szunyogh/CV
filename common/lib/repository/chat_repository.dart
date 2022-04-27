@@ -86,4 +86,22 @@ class ChatRepository implements IChatRepository {
       throw Exception();
     }
   }
+
+  @override
+  Future<void> deleteLike(String uId, String messageId) async {
+    try {
+      await service.deleteLike(uId, messageId);
+    } catch (err) {
+      throw Exception();
+    }
+  }
+
+  @override
+  Future<void> updateLike(String uId, String messageId, String like) async {
+    try {
+      await service.updateLike(uId, messageId, like);
+    } catch (err) {
+      throw Exception();
+    }
+  }
 }

@@ -29,7 +29,8 @@ class _$ChatTearOff {
       bool isUpload = false,
       String message = "",
       String picture = "",
-      String sender = ""}) {
+      String sender = "",
+      String like = ""}) {
     return _Chat(
       id: id,
       dateSent: dateSent,
@@ -38,6 +39,7 @@ class _$ChatTearOff {
       message: message,
       picture: picture,
       sender: sender,
+      like: like,
     );
   }
 
@@ -59,6 +61,7 @@ mixin _$Chat {
   String get message => throw _privateConstructorUsedError;
   String get picture => throw _privateConstructorUsedError;
   String get sender => throw _privateConstructorUsedError;
+  String get like => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -76,7 +79,8 @@ abstract class $ChatCopyWith<$Res> {
       bool isUpload,
       String message,
       String picture,
-      String sender});
+      String sender,
+      String like});
 }
 
 /// @nodoc
@@ -96,6 +100,7 @@ class _$ChatCopyWithImpl<$Res> implements $ChatCopyWith<$Res> {
     Object? message = freezed,
     Object? picture = freezed,
     Object? sender = freezed,
+    Object? like = freezed,
   }) {
     return _then(_value.copyWith(
       id: id == freezed
@@ -126,6 +131,10 @@ class _$ChatCopyWithImpl<$Res> implements $ChatCopyWith<$Res> {
           ? _value.sender
           : sender // ignore: cast_nullable_to_non_nullable
               as String,
+      like: like == freezed
+          ? _value.like
+          : like // ignore: cast_nullable_to_non_nullable
+              as String,
     ));
   }
 }
@@ -142,7 +151,8 @@ abstract class _$ChatCopyWith<$Res> implements $ChatCopyWith<$Res> {
       bool isUpload,
       String message,
       String picture,
-      String sender});
+      String sender,
+      String like});
 }
 
 /// @nodoc
@@ -163,6 +173,7 @@ class __$ChatCopyWithImpl<$Res> extends _$ChatCopyWithImpl<$Res>
     Object? message = freezed,
     Object? picture = freezed,
     Object? sender = freezed,
+    Object? like = freezed,
   }) {
     return _then(_Chat(
       id: id == freezed
@@ -193,6 +204,10 @@ class __$ChatCopyWithImpl<$Res> extends _$ChatCopyWithImpl<$Res>
           ? _value.sender
           : sender // ignore: cast_nullable_to_non_nullable
               as String,
+      like: like == freezed
+          ? _value.like
+          : like // ignore: cast_nullable_to_non_nullable
+              as String,
     ));
   }
 }
@@ -207,7 +222,8 @@ class _$_Chat extends _Chat {
       this.isUpload = false,
       this.message = "",
       this.picture = "",
-      this.sender = ""})
+      this.sender = "",
+      this.like = ""})
       : super._();
 
   factory _$_Chat.fromJson(Map<String, dynamic> json) => _$$_ChatFromJson(json);
@@ -233,10 +249,13 @@ class _$_Chat extends _Chat {
   @JsonKey()
   @override
   final String sender;
+  @JsonKey()
+  @override
+  final String like;
 
   @override
   String toString() {
-    return 'Chat(id: $id, dateSent: $dateSent, isSee: $isSee, isUpload: $isUpload, message: $message, picture: $picture, sender: $sender)';
+    return 'Chat(id: $id, dateSent: $dateSent, isSee: $isSee, isUpload: $isUpload, message: $message, picture: $picture, sender: $sender, like: $like)';
   }
 
   @override
@@ -250,7 +269,8 @@ class _$_Chat extends _Chat {
             const DeepCollectionEquality().equals(other.isUpload, isUpload) &&
             const DeepCollectionEquality().equals(other.message, message) &&
             const DeepCollectionEquality().equals(other.picture, picture) &&
-            const DeepCollectionEquality().equals(other.sender, sender));
+            const DeepCollectionEquality().equals(other.sender, sender) &&
+            const DeepCollectionEquality().equals(other.like, like));
   }
 
   @override
@@ -262,7 +282,8 @@ class _$_Chat extends _Chat {
       const DeepCollectionEquality().hash(isUpload),
       const DeepCollectionEquality().hash(message),
       const DeepCollectionEquality().hash(picture),
-      const DeepCollectionEquality().hash(sender));
+      const DeepCollectionEquality().hash(sender),
+      const DeepCollectionEquality().hash(like));
 
   @JsonKey(ignore: true)
   @override
@@ -283,7 +304,8 @@ abstract class _Chat extends Chat {
       bool isUpload,
       String message,
       String picture,
-      String sender}) = _$_Chat;
+      String sender,
+      String like}) = _$_Chat;
   const _Chat._() : super._();
 
   factory _Chat.fromJson(Map<String, dynamic> json) = _$_Chat.fromJson;
@@ -303,6 +325,8 @@ abstract class _Chat extends Chat {
   String get picture;
   @override
   String get sender;
+  @override
+  String get like;
   @override
   @JsonKey(ignore: true)
   _$ChatCopyWith<_Chat> get copyWith => throw _privateConstructorUsedError;

@@ -84,6 +84,15 @@ class ChatLogic extends BaseLogic<ChatState> {
     await repo.sendPushNoti(token, user.notificationId, user.name, message);
   }
 
+  Future<void> deleteLike(String messageId) async {
+    await repo.deleteLike(user.id, messageId);
+  }
+
+  Future<void> updateLike(String messageId, String like) async {
+    await repo.updateLike(user.id, messageId, like);
+    read(chatLogic.notifier).sendPushNoti("${user.name} kedvelte az egyik üzenetét");
+  }
+
   Future<void> updateMessage() async {
     await repo.updateMessage(user.id);
   }

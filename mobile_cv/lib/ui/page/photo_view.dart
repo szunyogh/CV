@@ -14,6 +14,7 @@ class PhotoViewWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        FocusScope.of(context).unfocus();
         globalNavigatorKey.currentState?.push(
           PageRouteBuilder(
               opaque: false,
@@ -79,7 +80,6 @@ class _PhotoViewState extends State<PhotoView> with TickerProviderStateMixin {
       } else {
         scaleFactor = 1.0;
         initalPositionX = 0.0;
-        initalPositionY = 0.0;
       }
       if (scaleFactor > 1.0) {
         initalPositionX += details.focalPointDelta.dx;
@@ -92,28 +92,16 @@ class _PhotoViewState extends State<PhotoView> with TickerProviderStateMixin {
   }
 
   void onDragEnd(ScaleEndDetails details) {
-    final double flingVelocity = details.velocity.pixelsPerSecond.dy;
     if (scaleFactor == 1.0) {
-      if (flingVelocity > 0) {
+      if (animationController.value <= 0.7) {
         animationController.reverse();
         Navigator.of(context).pop();
-      } else if (flingVelocity < 0) {
+      } else {
         animationController.value = 1.0;
         setState(() {
           initalPositionY = 0.0;
           initalScaleFactor = 0.0;
         });
-      } else {
-        if (animationController.value <= 0.5) {
-          animationController.reverse();
-          Navigator.of(context).pop();
-        } else {
-          animationController.value = 1.0;
-          setState(() {
-            initalPositionY = 0.0;
-            initalScaleFactor = 0.0;
-          });
-        }
       }
     }
   }

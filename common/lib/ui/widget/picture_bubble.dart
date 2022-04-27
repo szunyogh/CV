@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:common/ui/widget/image_indicator.dart';
+import 'package:common/ui/widget/like_indicator.dart';
 import 'package:common/ui/widget/saw_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -12,6 +13,8 @@ class PictureBubble extends StatelessWidget {
   final bool isSaw;
   final double progress;
   final String errorMessage;
+  final String like;
+  final Function onTap;
   const PictureBubble({
     Key? key,
     required this.maxWidth,
@@ -21,6 +24,8 @@ class PictureBubble extends StatelessWidget {
     this.isSaw = false,
     this.errorMessage = "",
     this.progress = 0.0,
+    this.like = "",
+    required this.onTap,
   }) : super(key: key);
 
   @override
@@ -72,6 +77,15 @@ class PictureBubble extends StatelessWidget {
                 right: -6.0,
                 bottom: -4.0,
                 child: SawIndicator(showIndicator: isSaw),
+              ),
+            if (like.isNotEmpty)
+              Positioned(
+                bottom: -6,
+                left: -9,
+                child: LikeIndicator(
+                  like: like,
+                  onTap: () => onTap(),
+                ),
               ),
           ],
         ),

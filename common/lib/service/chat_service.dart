@@ -79,7 +79,7 @@ class ChatService {
       if (querySnapshot.docs.isNotEmpty) {
         for (var document in querySnapshot.docs) {
           if ((document.data()['picture'] as String).isEmpty) {
-            batch.update(document.reference, {"isUpload": true});
+            batch.update(document.reference, {"isUpload": true, "id": document.id});
           }
         }
         batch.commit();
@@ -110,5 +110,23 @@ class ChatService {
   Future<void> typingStatus(String id, int index, bool typing) async {
     final typingData = index == 0 ? {"user_1": typing} : {"user_2": typing};
     FirebaseFirestore.instance.collection('users').doc(id).set({'typingStatus': typingData}, SetOptions(merge: true));
+  }
+
+  Future<void> deleteLike(String uId, String messageId) async {
+    return await FirebaseFirestore.instance
+        .collection('users')
+        .doc(uId)
+        .collection('chat')
+        .doc(messageId)
+        .set({'like': ""}, SetOptions(merge: true));
+  }
+
+  Future<void> updateLike(String uId, String messageId, String like) async {
+    return await FirebaseFirestore.instance
+        .collection('users')
+        .doc(uId)
+        .collection('chat')
+        .doc(messageId)
+        .set({'like': like}, SetOptions(merge: true));
   }
 }

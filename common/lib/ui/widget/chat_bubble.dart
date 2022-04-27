@@ -1,3 +1,4 @@
+import 'package:common/ui/widget/like_indicator.dart';
 import 'package:common/ui/widget/saw_indicator.dart';
 import 'package:common/ui/widget/send_indicator.dart';
 import 'package:flutter/material.dart';
@@ -7,16 +8,20 @@ class ChatBubble extends StatelessWidget {
   final bool isSender;
   final String message;
   final bool isShowIndicator;
-  final Function() onLongPress;
+  final Function() doubleTap;
   final bool isSaw;
+  final String like;
+  final Function onTap;
   const ChatBubble({
     Key? key,
     required this.maxWidth,
     required this.isSender,
     this.message = "",
     this.isShowIndicator = false,
-    required this.onLongPress,
+    required this.doubleTap,
     this.isSaw = false,
+    this.like = "",
+    required this.onTap,
   }) : super(key: key);
 
   @override
@@ -25,6 +30,7 @@ class ChatBubble extends StatelessWidget {
       mainAxisAlignment: isSender ? MainAxisAlignment.end : MainAxisAlignment.start,
       children: [
         Stack(
+          clipBehavior: Clip.none,
           children: [
             Container(
               constraints: BoxConstraints(maxWidth: maxWidth),
@@ -35,7 +41,7 @@ class ChatBubble extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: InkWell(
-                onLongPress: () => onLongPress(),
+                onDoubleTap: () => doubleTap(),
                 child: Text(
                   message,
                   style: isSender ? Theme.of(context).textTheme.bodyText1 : Theme.of(context).textTheme.bodyText2,
@@ -48,6 +54,15 @@ class ChatBubble extends StatelessWidget {
                 bottom: 2,
                 child: SawIndicator(showIndicator: isSaw),
               ),
+            if (like.isNotEmpty)
+              Positioned(
+                bottom: 2,
+                left: -12,
+                child: LikeIndicator(
+                  like: like,
+                  onTap: () => onTap(),
+                ),
+              ),
           ],
         ),
         if (isSender)
@@ -58,6 +73,3 @@ class ChatBubble extends StatelessWidget {
     );
   }
 }
-
-/*ColorFiltered(
-              colorFilter: ColorFilter.mode(Colors.white, isSender ? BlendMode.srcOut : BlendMode.dstATop), */

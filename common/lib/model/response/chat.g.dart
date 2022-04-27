@@ -15,6 +15,7 @@ _$_Chat _$$_ChatFromJson(Map<String, dynamic> json) => _$_Chat(
       message: json['message'] as String? ?? "",
       picture: json['picture'] as String? ?? "",
       sender: json['sender'] as String? ?? "",
+      like: json['like'] as String? ?? "",
     );
 
 Map<String, dynamic> _$$_ChatToJson(_$_Chat instance) => <String, dynamic>{
@@ -25,4 +26,5 @@ Map<String, dynamic> _$$_ChatToJson(_$_Chat instance) => <String, dynamic>{
       'message': instance.message,
       'picture': instance.picture,
       'sender': instance.sender,
+      'like': instance.like,
     };

@@ -37,47 +37,45 @@ class _HomPageState extends ConsumerState<HomPage> {
 
     final days = ref.watch(profileLogic).yearsOfExperience;
     return Scaffold(
-      body: Column(
-        children: [
-          HomeHeader(me: profile),
-          Expanded(
-            child: SingleChildScrollView(
-              controller: _controller,
-              physics: const BouncingScrollPhysics(),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(15.0),
-                        child: Text(profile.aboutMe),
-                      ),
+      body: SingleChildScrollView(
+        controller: _controller,
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            HomeHeader(me: profile),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: Text(profile.aboutMe),
                     ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      child: builtWrap((days / 365).toStringAsFixed(2), (days * 2).toString()),
-                    ),
-                    const SizedBox(height: 20),
-                    const Text("Iskoláim"),
-                    const SizedBox(height: 10),
-                    const SchoolCard(),
-                    const SizedBox(height: 20),
-                    const Text("Tapasztalataim"),
-                    const SizedBox(height: 10),
-                    const ExperienceCard(),
-                    const SizedBox(height: 20),
-                    const Text("Képességeim"),
-                    const SizedBox(height: 10),
-                    const MyAbilitiesCard(),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: builtWrap((days / 365).toStringAsFixed(2), (days * 2).toString()),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text("Iskoláim"),
+                  const SizedBox(height: 10),
+                  const SchoolCard(),
+                  const SizedBox(height: 20),
+                  const Text("Tapasztalataim"),
+                  const SizedBox(height: 10),
+                  const ExperienceCard(),
+                  const SizedBox(height: 20),
+                  const Text("Képességeim"),
+                  const SizedBox(height: 10),
+                  const MyAbilitiesCard(),
+                ],
               ),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
   }
@@ -129,7 +127,7 @@ class HomeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final f = DateFormat("yyyy.MM.dd");
     return ClipRRect(
-      borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+      borderRadius: BorderRadius.circular(20),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.grey,
