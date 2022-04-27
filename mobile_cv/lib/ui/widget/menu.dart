@@ -63,7 +63,7 @@ class _MenuWidgetState extends State<MenuWidget> {
   void didUpdateWidget(covariant MenuWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.selectedMenu != widget.selectedMenu) {
-      navigatorKey.currentState?.pushReplacementNamed(routs[widget.selectedMenu]);
+      navigatorKey.currentState?.pushNamedAndRemoveUntil(routs[widget.selectedMenu], (Route<dynamic> route) => false);
     }
   }
 

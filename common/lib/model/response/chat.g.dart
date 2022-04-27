@@ -13,7 +13,10 @@ _$_Chat _$$_ChatFromJson(Map<String, dynamic> json) => _$_Chat(
       isSee: json['isSee'] as bool? ?? false,
       isUpload: json['isUpload'] as bool? ?? false,
       message: json['message'] as String? ?? "",
-      picture: json['picture'] as String? ?? "",
+      file: (json['file'] as Map<String, dynamic>?)?.map(
+            (k, e) => MapEntry(k, e as String),
+          ) ??
+          const {"url": "", "type": ""},
       sender: json['sender'] as String? ?? "",
       like: json['like'] as String? ?? "",
     );
@@ -24,7 +27,7 @@ Map<String, dynamic> _$$_ChatToJson(_$_Chat instance) => <String, dynamic>{
       'isSee': instance.isSee,
       'isUpload': instance.isUpload,
       'message': instance.message,
-      'picture': instance.picture,
+      'file': instance.file,
       'sender': instance.sender,
       'like': instance.like,
     };

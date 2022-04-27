@@ -20,6 +20,14 @@ final customTheme = ThemeData().copyWith(
       ),
     ),
   ),
+  bottomSheetTheme: const BottomSheetThemeData(
+    elevation: 0,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(
+        top: Radius.circular(20),
+      ),
+    ),
+  ),
   textTheme: TextTheme(
     bodyText2: GoogleFonts.oswald(
       textStyle: const TextStyle(fontSize: 18, color: Colors.black, fontWeight: FontWeight.w400),

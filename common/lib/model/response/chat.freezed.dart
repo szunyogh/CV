@@ -28,7 +28,7 @@ class _$ChatTearOff {
       bool isSee = false,
       bool isUpload = false,
       String message = "",
-      String picture = "",
+      Map<String, String> file = const {"url": "", "type": ""},
       String sender = "",
       String like = ""}) {
     return _Chat(
@@ -37,7 +37,7 @@ class _$ChatTearOff {
       isSee: isSee,
       isUpload: isUpload,
       message: message,
-      picture: picture,
+      file: file,
       sender: sender,
       like: like,
     );
@@ -59,7 +59,7 @@ mixin _$Chat {
   bool get isSee => throw _privateConstructorUsedError;
   bool get isUpload => throw _privateConstructorUsedError;
   String get message => throw _privateConstructorUsedError;
-  String get picture => throw _privateConstructorUsedError;
+  Map<String, String> get file => throw _privateConstructorUsedError;
   String get sender => throw _privateConstructorUsedError;
   String get like => throw _privateConstructorUsedError;
 
@@ -78,7 +78,7 @@ abstract class $ChatCopyWith<$Res> {
       bool isSee,
       bool isUpload,
       String message,
-      String picture,
+      Map<String, String> file,
       String sender,
       String like});
 }
@@ -98,7 +98,7 @@ class _$ChatCopyWithImpl<$Res> implements $ChatCopyWith<$Res> {
     Object? isSee = freezed,
     Object? isUpload = freezed,
     Object? message = freezed,
-    Object? picture = freezed,
+    Object? file = freezed,
     Object? sender = freezed,
     Object? like = freezed,
   }) {
@@ -123,10 +123,10 @@ class _$ChatCopyWithImpl<$Res> implements $ChatCopyWith<$Res> {
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
               as String,
-      picture: picture == freezed
-          ? _value.picture
-          : picture // ignore: cast_nullable_to_non_nullable
-              as String,
+      file: file == freezed
+          ? _value.file
+          : file // ignore: cast_nullable_to_non_nullable
+              as Map<String, String>,
       sender: sender == freezed
           ? _value.sender
           : sender // ignore: cast_nullable_to_non_nullable
@@ -150,7 +150,7 @@ abstract class _$ChatCopyWith<$Res> implements $ChatCopyWith<$Res> {
       bool isSee,
       bool isUpload,
       String message,
-      String picture,
+      Map<String, String> file,
       String sender,
       String like});
 }
@@ -171,7 +171,7 @@ class __$ChatCopyWithImpl<$Res> extends _$ChatCopyWithImpl<$Res>
     Object? isSee = freezed,
     Object? isUpload = freezed,
     Object? message = freezed,
-    Object? picture = freezed,
+    Object? file = freezed,
     Object? sender = freezed,
     Object? like = freezed,
   }) {
@@ -196,10 +196,10 @@ class __$ChatCopyWithImpl<$Res> extends _$ChatCopyWithImpl<$Res>
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
               as String,
-      picture: picture == freezed
-          ? _value.picture
-          : picture // ignore: cast_nullable_to_non_nullable
-              as String,
+      file: file == freezed
+          ? _value.file
+          : file // ignore: cast_nullable_to_non_nullable
+              as Map<String, String>,
       sender: sender == freezed
           ? _value.sender
           : sender // ignore: cast_nullable_to_non_nullable
@@ -221,7 +221,7 @@ class _$_Chat extends _Chat {
       this.isSee = false,
       this.isUpload = false,
       this.message = "",
-      this.picture = "",
+      this.file = const {"url": "", "type": ""},
       this.sender = "",
       this.like = ""})
       : super._();
@@ -245,7 +245,7 @@ class _$_Chat extends _Chat {
   final String message;
   @JsonKey()
   @override
-  final String picture;
+  final Map<String, String> file;
   @JsonKey()
   @override
   final String sender;
@@ -255,7 +255,7 @@ class _$_Chat extends _Chat {
 
   @override
   String toString() {
-    return 'Chat(id: $id, dateSent: $dateSent, isSee: $isSee, isUpload: $isUpload, message: $message, picture: $picture, sender: $sender, like: $like)';
+    return 'Chat(id: $id, dateSent: $dateSent, isSee: $isSee, isUpload: $isUpload, message: $message, file: $file, sender: $sender, like: $like)';
   }
 
   @override
@@ -268,7 +268,7 @@ class _$_Chat extends _Chat {
             const DeepCollectionEquality().equals(other.isSee, isSee) &&
             const DeepCollectionEquality().equals(other.isUpload, isUpload) &&
             const DeepCollectionEquality().equals(other.message, message) &&
-            const DeepCollectionEquality().equals(other.picture, picture) &&
+            const DeepCollectionEquality().equals(other.file, file) &&
             const DeepCollectionEquality().equals(other.sender, sender) &&
             const DeepCollectionEquality().equals(other.like, like));
   }
@@ -281,7 +281,7 @@ class _$_Chat extends _Chat {
       const DeepCollectionEquality().hash(isSee),
       const DeepCollectionEquality().hash(isUpload),
       const DeepCollectionEquality().hash(message),
-      const DeepCollectionEquality().hash(picture),
+      const DeepCollectionEquality().hash(file),
       const DeepCollectionEquality().hash(sender),
       const DeepCollectionEquality().hash(like));
 
@@ -303,7 +303,7 @@ abstract class _Chat extends Chat {
       bool isSee,
       bool isUpload,
       String message,
-      String picture,
+      Map<String, String> file,
       String sender,
       String like}) = _$_Chat;
   const _Chat._() : super._();
@@ -322,7 +322,7 @@ abstract class _Chat extends Chat {
   @override
   String get message;
   @override
-  String get picture;
+  Map<String, String> get file;
   @override
   String get sender;
   @override

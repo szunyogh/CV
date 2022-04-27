@@ -1,7 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:common/logic/auth_logic.dart';
 import 'package:common/logic/base.dart';
-import 'package:common/logic/image_logic.dart';
+import 'package:common/logic/file_logic.dart';
 import 'package:common/logic/profile_logic.dart';
 import 'package:common/model/response/chat.dart';
 import 'package:common/model/response/user.dart';
@@ -10,7 +11,6 @@ import 'package:common/repository/chat_repository.dart';
 import 'package:common/repository/interface/chat_interface.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:image_picker/image_picker.dart';
 
 final chatLogic = StateNotifierProvider<ChatLogic, ChatState>((ref) => ChatLogic(ref.read));
 
@@ -59,9 +59,11 @@ class ChatLogic extends BaseLogic<ChatState> {
 
   void updateImage(List<Chat> chats) {
     if (!oneTimeRun) {
-      final uploadList = state.chats.where((element) => element.isUpload == false && element.picture.isNotEmpty).toList();
+      final uploadList =
+          state.chats.where((element) => element.isUpload == false && (element.file['url'] as String).isNotEmpty).toList();
       for (var item in uploadList) {
-        read(imageLogic(item.id).notifier).uploadImage(XFile(item.picture));
+        read(fileLogic(item.id).notifier)
+            .uploadFile(item.id.split('-').last, File(item.file['url'] ?? ""), item.file['type'] ?? "");
       }
       oneTimeRun = true;
     }

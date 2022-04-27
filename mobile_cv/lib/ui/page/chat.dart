@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'dart:math';
 import 'package:common/logic/auth_logic.dart';
+import 'package:common/logic/file_logic.dart';
 import 'package:common/logic/profile_logic.dart';
 import 'package:common/model/response/chat.dart';
 import 'package:common/model/response/profile.dart';
@@ -12,11 +14,12 @@ import 'package:common/logic/chat_logic.dart';
 import 'package:common/ui/widget/typing_indicator.dart';
 import 'package:common/ui/widget/picture_bubble.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:common/logic/image_logic.dart';
 import 'package:mobile_cv/ui/page/photo_view.dart';
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:mobile_cv/ui/widget/like.dart';
+import 'package:mobile_cv/ui/widget/photo_gallery.dart';
+import 'package:photo_manager/photo_manager.dart';
 
 class ChatPage extends ConsumerStatefulWidget {
   final bool initialize;
@@ -189,12 +192,12 @@ class ListItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     double maxWidth = MediaQuery.of(context).size.width / 1.65;
     if (chat.isPicture) {
-      final progress = ref.watch(imageLogic(chat.id)).progress;
+      final progress = ref.watch(fileLogic(chat.id)).progress;
       return PhotoViewWidget(
-        picture: chat.picture,
+        picture: chat.file['url'] ?? "",
         child: PictureBubble(
           isSender: isSender,
-          picture: chat.picture,
+          picture: chat.file['url'] ?? "",
           isShowIndicator: !chat.isUpload,
           progress: progress,
           isSaw: isSaw,
@@ -284,8 +287,8 @@ class _BottomBarState extends ConsumerState<BottomBar> {
             onTap: () async {
               final image = await picker.pickImage(source: ImageSource.camera);
               final ran = Random();
-              final id = "${uId.substring(0, 5)}-${ran.nextInt(13402)}-${image!.name.split('.').first}";
-              ref.read(imageLogic(id).notifier).getImage(image);
+              final id = "${uId.substring(0, 5)}-${ran.nextInt(13402)}-${image!.name}";
+              ref.read(fileLogic(id).notifier).getFile("image", image.name, File(image.path));
             },
             child: const Icon(
               Icons.camera_alt,
@@ -295,11 +298,12 @@ class _BottomBarState extends ConsumerState<BottomBar> {
           ),
           InkWell(
             onTap: () async {
-              final image = await picker.pickMultiImage();
-              image?.forEach((element) {
+              final files = await bottomSheet();
+              files?.forEach((element) async {
+                final file = await element.file;
                 final ran = Random();
-                final id = "${uId.substring(0, 5)}-${ran.nextInt(13402)}-${element.name.split('.').first}";
-                ref.read(imageLogic(id).notifier).getImage(element);
+                final id = "${uId.substring(0, 5)}-${ran.nextInt(13402)}-${element.title ?? ""}";
+                ref.read(fileLogic(id).notifier).getFile(element.type.name, element.title ?? "", file);
               });
             },
             child: const Icon(
@@ -336,6 +340,48 @@ class _BottomBarState extends ConsumerState<BottomBar> {
           ),
         ],
       ),
+    );
+  }
+
+  Future<List<AssetEntity>?> bottomSheet() async {
+    return await showModalBottomSheet<List<AssetEntity>>(
+      isScrollControlled: true,
+      context: context,
+      builder: (context) {
+        return NotificationListener<DraggableScrollableNotification>(
+          onNotification: (DraggableScrollableNotification notification) {
+            if (notification.extent <= 0.3) {
+              Navigator.maybePop(context);
+            }
+            return false;
+          },
+          child: DraggableScrollableSheet(
+              expand: false,
+              snap: true,
+              minChildSize: 0.0,
+              snapSizes: const [0.0, 0.5, 1.0],
+              builder: (BuildContext context, ScrollController scrollController) {
+                return Column(
+                  children: [
+                    Container(
+                      width: 100,
+                      height: 8,
+                      margin: const EdgeInsets.symmetric(vertical: 10),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color: Colors.grey,
+                      ),
+                    ),
+                    Expanded(
+                      child: PhotoGallery(
+                        controller: scrollController,
+                      ),
+                    ),
+                  ],
+                );
+              }),
+        );
+      },
     );
   }
 }

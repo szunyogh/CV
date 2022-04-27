@@ -23,12 +23,12 @@ class Chat with _$Chat {
     @Default(false) bool isSee,
     @Default(false) bool isUpload,
     @Default("") String message,
-    @Default("") String picture,
+    @Default({"url": "", "type": ""}) Map<String, String> file,
     @Default("") String sender,
     @Default("") String like,
   }) = _Chat;
 
-  bool get isPicture => picture.isNotEmpty;
+  bool get isPicture => (file['type'] as String) == 'image';
 
   factory Chat.fromJson(Map<String, dynamic> json) => _$ChatFromJson(json);
 }
