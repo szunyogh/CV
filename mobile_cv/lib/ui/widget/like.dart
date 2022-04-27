@@ -18,18 +18,18 @@ class LikeWidget extends StatefulWidget {
 }
 
 class _LikeWidgetState extends State<LikeWidget> {
-  OverlayEntry? loader;
+  OverlayEntry? overlayEntry;
   final GlobalKey key = GlobalKey();
   Offset initalPosition = Offset.zero;
   double dragPosition = 0.0;
 
   String selectEmoji = "";
 
-  void showLoader(BuildContext _context) {
+  void showOverlay(BuildContext _context) {
     OverlayState overlay = Overlay.of(_context)!;
 
-    if (loader == null) {
-      loader = OverlayEntry(
+    if (overlayEntry == null) {
+      overlayEntry = OverlayEntry(
         maintainState: true,
         builder: (context) {
           return Stack(
@@ -45,13 +45,13 @@ class _LikeWidgetState extends State<LikeWidget> {
           );
         },
       );
-      overlay.insert(loader!);
+      overlay.insert(overlayEntry!);
     }
   }
 
-  void hideloader() {
-    loader!.remove();
-    loader = null;
+  void hideOverlay() {
+    overlayEntry!.remove();
+    overlayEntry = null;
   }
 
   void onLongPressStart(BuildContext context, LongPressStartDetails details) {
@@ -60,7 +60,7 @@ class _LikeWidgetState extends State<LikeWidget> {
     setState(() {
       initalPosition = box.localToGlobal(Offset.zero);
     });
-    showLoader(context);
+    showOverlay(context);
   }
 
   void onLongPressUpdate(LongPressMoveUpdateDetails details) {
@@ -68,13 +68,13 @@ class _LikeWidgetState extends State<LikeWidget> {
     setState(() {
       dragPosition = details.localPosition.dx;
     });
-    loader?.markNeedsBuild();
+    overlayEntry?.markNeedsBuild();
   }
 
   void onLongPressEnd(LongPressEndDetails details) {
     if (!widget.enabled) return;
     widget.onChanged(selectEmoji);
-    hideloader();
+    hideOverlay();
   }
 
   @override
