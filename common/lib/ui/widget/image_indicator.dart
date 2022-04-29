@@ -1,21 +1,20 @@
-import 'dart:io';
+import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ImageIndicator extends ConsumerWidget {
+class ImageIndicator extends StatelessWidget {
   final double width;
-  final File image;
+  final String file;
   final double progressValue;
   const ImageIndicator({
     Key? key,
     required this.width,
-    required this.image,
+    required this.file,
     required this.progressValue,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(width, 0, 7, 10),
       child: ClipRRect(
@@ -23,9 +22,7 @@ class ImageIndicator extends ConsumerWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            Image.file(
-              image,
-            ),
+            Image.memory(base64.decode(file), fit: BoxFit.cover),
             BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
               child: SizedBox(

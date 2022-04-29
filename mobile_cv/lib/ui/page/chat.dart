@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:common/logic/auth_logic.dart';
@@ -208,6 +209,23 @@ class ListItem extends ConsumerWidget {
         ),
       );
     }
+    if (chat.isVideo) {
+      final progress = ref.watch(fileLogic(chat.id)).progress;
+      return PhotoViewWidget(
+        picture: chat.file['url'] ?? "",
+        child: PictureBubble(
+          isSender: isSender,
+          picture: chat.file['url'] ?? "",
+          isShowIndicator: !chat.isUpload,
+          progress: progress,
+          isSaw: isSaw,
+          maxWidth: maxWidth,
+          like: chat.like,
+          errorMessage: chat.isUpload ? "Hiba a kép betöltése során" : "A kép feltöltése folyamatban",
+          onTap: () => onTap(),
+        ),
+      );
+    }
     return ChatBubble(
       maxWidth: maxWidth,
       isSender: isSender,
@@ -288,7 +306,8 @@ class _BottomBarState extends ConsumerState<BottomBar> {
               final image = await picker.pickImage(source: ImageSource.camera);
               final ran = Random();
               final id = "${uId.substring(0, 5)}-${ran.nextInt(13402)}-${image!.name}";
-              ref.read(fileLogic(id).notifier).getFile("image", image.name, File(image.path));
+              final bytes = await image.readAsBytes();
+              ref.read(fileLogic(id).notifier).getFile("image", image.name, base64.encode(bytes), File(image.path));
             },
             child: const Icon(
               Icons.camera_alt,
@@ -300,10 +319,13 @@ class _BottomBarState extends ConsumerState<BottomBar> {
             onTap: () async {
               final files = await bottomSheet();
               files?.forEach((element) async {
+                final bytes = await element.thumbnailData;
                 final file = await element.file;
                 final ran = Random();
                 final id = "${uId.substring(0, 5)}-${ran.nextInt(13402)}-${element.title ?? ""}";
-                ref.read(fileLogic(id).notifier).getFile(element.type.name, element.title ?? "", file);
+                ref
+                    .read(fileLogic(id).notifier)
+                    .getFile(element.type.name, element.title ?? "", base64.encode(bytes!), file!);
               });
             },
             child: const Icon(

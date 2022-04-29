@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:common/logic/auth_logic.dart';
 import 'package:common/logic/base.dart';
@@ -11,6 +12,7 @@ import 'package:common/repository/chat_repository.dart';
 import 'package:common/repository/interface/chat_interface.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:path_provider/path_provider.dart';
 
 final chatLogic = StateNotifierProvider<ChatLogic, ChatState>((ref) => ChatLogic(ref.read));
 
@@ -35,7 +37,7 @@ class ChatLogic extends BaseLogic<ChatState> {
       if (_connectivity != ConnectivityResult.none) {
         updateMessageSaw();
         updateMessage();
-        updateImage(state.chats);
+        //updateImage(state.chats);
       }
     });
   }
@@ -57,13 +59,20 @@ class ChatLogic extends BaseLogic<ChatState> {
     });
   }
 
-  void updateImage(List<Chat> chats) {
+  void updateImage(List<Chat> chats) async {
     if (!oneTimeRun) {
       final uploadList =
           state.chats.where((element) => element.isUpload == false && (element.file['url'] as String).isNotEmpty).toList();
       for (var item in uploadList) {
-        read(fileLogic(item.id).notifier)
-            .uploadFile(item.id.split('-').last, File(item.file['url'] ?? ""), item.file['type'] ?? "");
+        final name = item.id.split('-').last;
+        final type = item.file['type'] ?? "";
+        final bytes = base64.decode(item.file['url'] ?? "");
+
+        ///data/user/0/com.example.cv/app_flutter - getApplicationDocumentsDirectory
+        ///data/user/0/com.example.cv/cache - getTemporaryDirectory
+        String dir = (await getTemporaryDirectory()).path;
+        final file = await File("$dir/$name").writeAsBytes(bytes);
+        read(fileLogic(item.id).notifier).uploadFile(name, file, type);
       }
       oneTimeRun = true;
     }

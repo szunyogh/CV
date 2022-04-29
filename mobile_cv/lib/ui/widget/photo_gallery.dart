@@ -45,53 +45,50 @@ class _PhotoGalleryState extends State<PhotoGallery> {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: Stack(
-        alignment: Alignment.bottomCenter,
-        children: [
-          GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              mainAxisSpacing: 7,
-              crossAxisSpacing: 7,
-            ),
-            padding: const EdgeInsets.all(7),
-            physics: const BouncingScrollPhysics(),
-            controller: widget.controller,
-            itemCount: assets.length,
-            itemBuilder: (_, index) {
-              final selected = selectedAssets.any((element) => element == assets[index]);
-              return AssetThumbnail(
-                asset: assets[index],
-                selected: selected,
-                onTap: (value) {
-                  final _selected = selectedAssets.any((element) => element == value);
-                  setState(() {
-                    if (!_selected) {
-                      selectedAssets.add(value);
-                    } else {
-                      selectedAssets.remove(value);
-                    }
-                  });
-                },
-              );
-            },
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            mainAxisSpacing: 7,
+            crossAxisSpacing: 7,
           ),
-          if (selectedAssets.isNotEmpty)
-            Positioned(
-              bottom: 10,
-              left: 20,
-              right: 20,
-              child: CustomButton.primary(
-                child: const Text("Küldés"),
-                onTap: () {
-                  Navigator.of(context).pop(selectedAssets);
-                },
-              ),
+          padding: const EdgeInsets.all(7),
+          physics: const BouncingScrollPhysics(),
+          controller: widget.controller,
+          itemCount: assets.length,
+          itemBuilder: (_, index) {
+            final selected = selectedAssets.any((element) => element == assets[index]);
+            return AssetThumbnail(
+              asset: assets[index],
+              selected: selected,
+              onTap: (value) {
+                final _selected = selectedAssets.any((element) => element == value);
+                setState(() {
+                  if (!_selected) {
+                    selectedAssets.add(value);
+                  } else {
+                    selectedAssets.remove(value);
+                  }
+                });
+              },
+            );
+          },
+        ),
+        if (selectedAssets.isNotEmpty)
+          Positioned(
+            bottom: 10,
+            left: 20,
+            right: 20,
+            child: CustomButton.primary(
+              child: const Text("Küldés"),
+              onTap: () {
+                Navigator.of(context).pop(selectedAssets);
+              },
             ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 }

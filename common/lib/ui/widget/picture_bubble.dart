@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:common/ui/widget/image_indicator.dart';
 import 'package:common/ui/widget/like_indicator.dart';
 import 'package:common/ui/widget/saw_indicator.dart';
@@ -32,7 +33,7 @@ class PictureBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     if (isShowIndicator) {
       return ImageIndicator(
-        image: File(picture),
+        file: picture,
         progressValue: progress,
         width: maxWidth / 2,
       );

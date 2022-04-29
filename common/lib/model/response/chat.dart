@@ -30,5 +30,7 @@ class Chat with _$Chat {
 
   bool get isPicture => (file['type'] as String) == 'image';
 
+  bool get isVideo => (file['type'] as String) == 'video';
+
   factory Chat.fromJson(Map<String, dynamic> json) => _$ChatFromJson(json);
 }

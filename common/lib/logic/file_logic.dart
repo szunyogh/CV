@@ -39,9 +39,9 @@ class FileLogic extends BaseLogic<FileState> {
     return repo.downloadFile(user.id, name, file);
   }
 
-  Future<void> getFile(String type, String name, File? file) async {
-    if (file == null) return;
-    final request = Chat(id: id, dateSent: DateTime.now(), file: {"url": file.path, "type": type}, sender: user.id);
+  Future<void> getFile(String type, String name, String? base64, File file) async {
+    if (base64 == null) return;
+    final request = Chat(id: id, dateSent: DateTime.now(), file: {"url": base64, "type": type}, sender: user.id);
     await repo.getFile(request.toJson(), user.id);
     uploadFile(name, file, type);
   }
