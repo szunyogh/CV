@@ -33,6 +33,8 @@ dependencies:
   just_audio: ^0.9.20
   flutter_svg: ^1.0.3
   photo_manager: ^2.0.8
+  video_player: ^2.4.0
+  audio_video_progress_bar: ^0.10.0
 
 dev_dependencies:
   flutter_test:

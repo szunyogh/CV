@@ -7,6 +7,7 @@ import 'package:common/logic/profile_logic.dart';
 import 'package:common/model/response/chat.dart';
 import 'package:common/model/response/profile.dart';
 import 'package:common/ui/widget/circle_button.dart';
+import 'package:common/ui/widget/video_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,9 +19,11 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mobile_cv/ui/page/photo_view.dart';
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:mobile_cv/ui/page/video_view.dart';
 import 'package:mobile_cv/ui/widget/like.dart';
 import 'package:mobile_cv/ui/widget/photo_gallery.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:video_player/video_player.dart';
 
 class ChatPage extends ConsumerStatefulWidget {
   final bool initialize;
@@ -194,7 +197,7 @@ class ListItem extends ConsumerWidget {
     double maxWidth = MediaQuery.of(context).size.width / 1.65;
     if (chat.isPicture) {
       final progress = ref.watch(fileLogic(chat.id)).progress;
-      return PhotoViewWidget(
+      return PhotoView(
         picture: chat.file['url'] ?? "",
         child: PictureBubble(
           isSender: isSender,
@@ -211,19 +214,15 @@ class ListItem extends ConsumerWidget {
     }
     if (chat.isVideo) {
       final progress = ref.watch(fileLogic(chat.id)).progress;
-      return PhotoViewWidget(
-        picture: chat.file['url'] ?? "",
-        child: PictureBubble(
-          isSender: isSender,
-          picture: chat.file['url'] ?? "",
-          isShowIndicator: !chat.isUpload,
-          progress: progress,
-          isSaw: isSaw,
-          maxWidth: maxWidth,
-          like: chat.like,
-          errorMessage: chat.isUpload ? "Hiba a kép betöltése során" : "A kép feltöltése folyamatban",
-          onTap: () => onTap(),
-        ),
+      return VideoView(
+        isSender: isSender,
+        video: chat.file['url'] ?? "",
+        isShowIndicator: !chat.isUpload,
+        isSaw: isSaw,
+        maxWidth: maxWidth,
+        like: chat.like,
+        onTap: () => onTap(),
+        progress: progress,
       );
     }
     return ChatBubble(

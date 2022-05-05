@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_cv/ui/application.dart';
 
-class PhotoViewWidget extends StatelessWidget {
+class PhotoView extends StatelessWidget {
   final Widget child;
   final String picture;
-  const PhotoViewWidget({
+  const PhotoView({
     Key? key,
     required this.child,
     required this.picture,
@@ -20,7 +20,7 @@ class PhotoViewWidget extends StatelessWidget {
               opaque: false,
               barrierColor: Colors.transparent,
               pageBuilder: (BuildContext context, _, __) {
-                return PhotoView(picture: picture);
+                return PhotoViewWidget(picture: picture);
               }),
         );
       },
@@ -29,18 +29,18 @@ class PhotoViewWidget extends StatelessWidget {
   }
 }
 
-class PhotoView extends StatefulWidget {
+class PhotoViewWidget extends StatefulWidget {
   final String picture;
-  const PhotoView({
+  const PhotoViewWidget({
     Key? key,
     required this.picture,
   }) : super(key: key);
 
   @override
-  State<PhotoView> createState() => _PhotoViewState();
+  State<PhotoViewWidget> createState() => _PhotoViewWidgetState();
 }
 
-class _PhotoViewState extends State<PhotoView> with TickerProviderStateMixin {
+class _PhotoViewWidgetState extends State<PhotoViewWidget> with TickerProviderStateMixin {
   double initalPositionY = 0.0;
   double initalPositionX = 0.0;
   double opacity = 0.0;
