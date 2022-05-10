@@ -98,6 +98,15 @@ class _ChatPageState extends ConsumerState<ChatPage> with WidgetsBindingObserver
                         reverse: true,
                         itemBuilder: (c, i) {
                           final sawIndex = chats.indexWhere((val) => val.isSee == true && val.sender == uId);
+                          if (i != 0) {
+                            if (chats[i - 1].isPicture || chats[i - 1].isVideo) {
+                              ref.read(fileLogic(chats[i - 1].id).notifier).initialize(url: chats[i - 1].file['url'] ?? "");
+                              if (chats[i - 1].isVideo) {
+                                ref.read(fileLogic(chats[i - 1].id).notifier).videoInitalize();
+                              }
+                            }
+                          }
+
                           if (i == 0) {
                             return Align(
                               alignment: Alignment.bottomLeft,
@@ -197,32 +206,30 @@ class ListItem extends ConsumerWidget {
     double maxWidth = MediaQuery.of(context).size.width / 1.65;
     if (chat.isPicture) {
       final progress = ref.watch(fileLogic(chat.id)).progress;
+      final file = ref.watch(fileLogic(chat.id)).file;
       return PhotoView(
-        picture: chat.file['url'] ?? "",
-        child: PictureBubble(
-          isSender: isSender,
-          picture: chat.file['url'] ?? "",
-          isShowIndicator: !chat.isUpload,
-          progress: progress,
-          isSaw: isSaw,
-          maxWidth: maxWidth,
-          like: chat.like,
-          errorMessage: chat.isUpload ? "Hiba a kép betöltése során" : "A kép feltöltése folyamatban",
-          onTap: () => onTap(),
-        ),
+        isSender: isSender,
+        picture: file,
+        indicatorPicture: chat.file['url'] ?? "",
+        isShowIndicator: !chat.isUpload,
+        progress: progress,
+        isSaw: isSaw,
+        maxWidth: maxWidth,
+        like: chat.like,
+        errorMessage: chat.isUpload ? "Hiba a kép betöltése során" : "A kép feltöltése folyamatban",
+        onTap: () => onTap(),
       );
     }
     if (chat.isVideo) {
-      final progress = ref.watch(fileLogic(chat.id)).progress;
       return VideoView(
         isSender: isSender,
-        video: chat.file['url'] ?? "",
+        indicatorPicture: chat.file['url'] ?? "",
+        id: chat.id,
         isShowIndicator: !chat.isUpload,
         isSaw: isSaw,
         maxWidth: maxWidth,
         like: chat.like,
         onTap: () => onTap(),
-        progress: progress,
       );
     }
     return ChatBubble(

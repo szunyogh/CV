@@ -1,15 +1,14 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:common/ui/widget/image_indicator.dart';
 import 'package:common/ui/widget/like_indicator.dart';
 import 'package:common/ui/widget/saw_indicator.dart';
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 class PictureBubble extends StatelessWidget {
   final double maxWidth;
   final bool isSender;
-  final String picture;
+  final File? picture;
+  final String indicatorPicture;
   final bool isShowIndicator;
   final bool isSaw;
   final double progress;
@@ -20,7 +19,8 @@ class PictureBubble extends StatelessWidget {
     Key? key,
     required this.maxWidth,
     required this.isSender,
-    this.picture = "",
+    this.picture,
+    this.indicatorPicture = "",
     this.isShowIndicator = false,
     this.isSaw = false,
     this.errorMessage = "",
@@ -33,7 +33,7 @@ class PictureBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     if (isShowIndicator) {
       return ImageIndicator(
-        file: picture,
+        file: indicatorPicture,
         progressValue: progress,
         width: maxWidth / 2,
       );
@@ -48,29 +48,30 @@ class PictureBubble extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(20),
               child: Hero(
-                tag: picture,
-                child: CachedNetworkImage(
-                  imageUrl: picture,
-                  placeholder: (context, url) => Container(
-                    height: 150,
-                    color: Colors.black12,
-                    width: maxWidth,
-                    child: const Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-                  width: maxWidth,
-                  errorWidget: (c, s, d) {
-                    return Container(
-                      color: Colors.black12,
-                      padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
-                      child: Text(
-                        errorMessage,
-                        style: Theme.of(context).textTheme.bodyText2,
+                tag: picture?.path ?? "",
+                child: picture != null
+                    ? Image.file(
+                        picture!,
+                        width: maxWidth,
+                        errorBuilder: (c, o, s) {
+                          return Container(
+                            color: Colors.black12,
+                            padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
+                            child: Text(
+                              errorMessage,
+                              style: Theme.of(context).textTheme.bodyText2,
+                            ),
+                          );
+                        },
+                      )
+                    : Container(
+                        height: 150,
+                        color: Colors.black12,
+                        width: maxWidth,
+                        child: const Center(
+                          child: CircularProgressIndicator(),
+                        ),
                       ),
-                    );
-                  },
-                ),
               ),
             ),
             if (isSender)

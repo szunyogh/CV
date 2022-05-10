@@ -1,85 +1,37 @@
+import 'dart:io';
+import 'package:common/logic/file_logic.dart';
 import 'package:common/ui/widget/video_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:mobile_cv/ui/application.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class VideoView extends StatefulWidget {
+class VideoView extends ConsumerWidget {
+  final String id;
   final double maxWidth;
   final bool isSender;
-  final String video;
+  final String indicatorPicture;
   final bool isShowIndicator;
   final bool isSaw;
   final String like;
   final Function onTap;
-  final double progress;
   const VideoView({
     Key? key,
+    required this.id,
     required this.maxWidth,
     required this.isSender,
-    this.video = "",
+    this.indicatorPicture = "",
     this.isShowIndicator = false,
     this.isSaw = false,
     this.like = "",
     required this.onTap,
-    required this.progress,
   }) : super(key: key);
 
   @override
-  State<VideoView> createState() => _VideoViewState();
-}
-
-class _VideoViewState extends State<VideoView> {
-  VideoPlayerController? _videoPlayerController;
-  Duration duration = Duration.zero;
-  Duration position = Duration.zero;
-
-  @override
-  void initState() {
-    super.initState();
-    _videoPlayerController =
-        VideoPlayerController.network(widget.video, videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true))
-          ..initialize().then(
-            (value) => setState(() {
-              duration = _videoPlayerController?.value.duration ?? Duration.zero;
-            }),
-          );
-
-    _videoPlayerController?.addListener(() => listener());
-  }
-
-  void listener() {
-    if (_videoPlayerController?.value.position == _videoPlayerController?.value.duration) {
-      _videoPlayerController?.seekTo(const Duration(seconds: 0));
-    }
-    setState(() {
-      position = _videoPlayerController?.value.position ?? Duration.zero;
-    });
-  }
-
-  @override
-  void didUpdateWidget(covariant VideoView oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.video != widget.video) {
-      _videoPlayerController =
-          VideoPlayerController.network(widget.video, videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true))
-            ..initialize().then(
-              (value) => setState(() {
-                duration = _videoPlayerController?.value.duration ?? Duration.zero;
-              }),
-            );
-    }
-  }
-
-  @override
-  void dispose() {
-    _videoPlayerController?.removeListener(() {});
-    _videoPlayerController?.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final _videoPlayerController = ref.watch(fileLogic(id)).controller;
+    final video = ref.watch(fileLogic(id)).file;
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -89,56 +41,51 @@ class _VideoViewState extends State<VideoView> {
               barrierColor: Colors.transparent,
               pageBuilder: (BuildContext context, _, __) {
                 return VideoViewWidget(
-                  video: widget.video,
+                  video: video,
                   controller: _videoPlayerController,
-                  duration: duration,
+                  id: id,
                 );
               }),
         );
       },
       child: VideoBubble(
+        id: id,
         controller: _videoPlayerController,
-        isSender: widget.isSender,
-        video: widget.video,
-        isShowIndicator: widget.isShowIndicator,
-        progress: widget.progress,
-        isSaw: widget.isSaw,
-        maxWidth: widget.maxWidth,
-        like: widget.like,
-        errorMessage: widget.isShowIndicator ? "Hiba a videó betöltése során" : "A videó feltöltése folyamatban",
-        onTap: () => widget.onTap(),
-        position: position,
-        duration: duration,
+        isSender: isSender,
+        video: video,
+        indicatorPicture: indicatorPicture,
+        isShowIndicator: isShowIndicator,
+        isSaw: isSaw,
+        maxWidth: maxWidth,
+        like: like,
+        onTap: () => onTap(),
       ),
     );
   }
 }
 
-class VideoViewWidget extends StatefulWidget {
-  final String video;
+class VideoViewWidget extends ConsumerStatefulWidget {
+  final File? video;
   final VideoPlayerController? controller;
-  final Duration duration;
+  final String id;
   const VideoViewWidget({
     Key? key,
     required this.video,
     required this.controller,
-    required this.duration,
+    required this.id,
   }) : super(key: key);
 
   @override
-  State<VideoViewWidget> createState() => _VideoViewWidgetState();
+  ConsumerState<VideoViewWidget> createState() => _VideoViewWidgetState();
 }
 
-class _VideoViewWidgetState extends State<VideoViewWidget> with TickerProviderStateMixin {
+class _VideoViewWidgetState extends ConsumerState<VideoViewWidget> with TickerProviderStateMixin {
   double initalPositionY = 0.0;
   double initalPositionX = 0.0;
   double opacity = 0.0;
   double initalScaleFactor = 0.0;
   late AnimationController animationController;
   late Animation<double> opacityAnimation;
-  Duration duration = Duration.zero;
-  Duration position = Duration.zero;
-  bool isPlaying = false;
 
   @override
   void initState() {
@@ -148,24 +95,10 @@ class _VideoViewWidgetState extends State<VideoViewWidget> with TickerProviderSt
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
       animationController.forward();
     });
-    isPlaying = widget.controller?.value.isPlaying ?? false;
-    duration = widget.controller?.value.duration ?? Duration.zero;
-    widget.controller?.addListener(() => listener());
-  }
-
-  void listener() {
-    if (widget.controller?.value.position == widget.controller?.value.duration) {
-      widget.controller?.seekTo(const Duration(seconds: 0));
-    }
-    setState(() {
-      isPlaying = widget.controller?.value.isPlaying ?? false;
-      position = widget.controller?.value.position ?? Duration.zero;
-    });
   }
 
   @override
   void dispose() {
-    widget.controller?.removeListener(() {});
     animationController.dispose();
     super.dispose();
   }
@@ -196,8 +129,9 @@ class _VideoViewWidgetState extends State<VideoViewWidget> with TickerProviderSt
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     bool isInitialized = widget.controller?.value.isInitialized ?? false;
-    String _duration = duration.getDuration();
-    String _position = position.getDuration();
+    Duration duration = ref.watch(fileLogic(widget.id)).duration;
+    Duration position = ref.watch(fileLogic(widget.id)).position;
+    bool isPlaying = ref.watch(fileLogic(widget.id)).isPlaying;
     return WillPopScope(
       onWillPop: () async {
         animationController.reverse();
@@ -240,8 +174,8 @@ class _VideoViewWidgetState extends State<VideoViewWidget> with TickerProviderSt
                               alignment: Alignment.center,
                               children: [
                                 Hero(
-                                  tag: widget.video,
-                                  child: isInitialized
+                                  tag: widget.video?.path ?? "",
+                                  child: isInitialized && widget.video != null
                                       ? AspectRatio(
                                           aspectRatio: widget.controller!.value.aspectRatio,
                                           child: VideoPlayer(widget.controller!),
@@ -290,7 +224,7 @@ class _VideoViewWidgetState extends State<VideoViewWidget> with TickerProviderSt
                                         child: Row(
                                           children: [
                                             Text(
-                                              _position,
+                                              position.getDuration(),
                                               style: const TextStyle(color: Colors.white),
                                             ),
                                             const SizedBox(width: 15),
@@ -306,7 +240,7 @@ class _VideoViewWidgetState extends State<VideoViewWidget> with TickerProviderSt
                                             ),
                                             const SizedBox(width: 15),
                                             Text(
-                                              _duration,
+                                              duration.getDuration(),
                                               style: const TextStyle(color: Colors.white),
                                             )
                                           ],

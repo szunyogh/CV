@@ -73,14 +73,12 @@ class ChatService {
     return await chat
         .collection('chat')
         .where('isUpload', isEqualTo: false)
-        .where("picture", isEqualTo: "")
+        .where("file.url", isEqualTo: "")
         .get()
         .then((querySnapshot) {
       if (querySnapshot.docs.isNotEmpty) {
         for (var document in querySnapshot.docs) {
-          if ((document.data()['picture'] as String).isEmpty) {
-            batch.update(document.reference, {"isUpload": true, "id": document.id});
-          }
+          batch.update(document.reference, {"isUpload": true, "id": document.id});
         }
         batch.commit();
       }

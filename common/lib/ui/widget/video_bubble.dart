@@ -1,76 +1,53 @@
+import 'dart:io';
+import 'package:common/logic/file_logic.dart';
 import 'package:common/ui/widget/image_indicator.dart';
 import 'package:common/ui/widget/like_indicator.dart';
 import 'package:common/ui/widget/saw_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:video_player/video_player.dart';
 
-class VideoBubble extends StatefulWidget {
+class VideoBubble extends ConsumerWidget {
+  final String id;
   final double maxWidth;
   final bool isSender;
-  final String video;
+  final File? video;
+  final String indicatorPicture;
   final bool isShowIndicator;
   final bool isSaw;
-  final double progress;
-  final String errorMessage;
   final String like;
   final Function onTap;
   final VideoPlayerController? controller;
-  final Duration position;
-  final Duration duration;
   const VideoBubble({
     Key? key,
+    required this.id,
     required this.maxWidth,
     required this.isSender,
-    this.video = "",
+    this.video,
+    this.indicatorPicture = "",
     this.isShowIndicator = false,
     this.isSaw = false,
-    this.errorMessage = "",
-    this.progress = 0.0,
     this.like = "",
     required this.onTap,
     required this.controller,
-    required this.duration,
-    required this.position,
   }) : super(key: key);
 
   @override
-  State<VideoBubble> createState() => _VideoBubbleState();
-}
-
-class _VideoBubbleState extends State<VideoBubble> {
-  Duration duration = Duration.zero;
-  Duration position = Duration.zero;
-
-  @override
-  void didUpdateWidget(covariant VideoBubble oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.duration != widget.duration) {
-      setState(() {
-        duration = widget.duration;
-      });
-    }
-    if (oldWidget.position != widget.position) {
-      setState(() {
-        position = widget.position;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    bool isInitialized = widget.controller?.value.isInitialized ?? false;
-    bool isPlaying = widget.controller?.value.isPlaying ?? false;
-    String _duration = duration.getDuration();
-    String _position = position.getDuration();
-    if (widget.isShowIndicator) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    bool isInitialized = controller?.value.isInitialized ?? false;
+    final progress = ref.watch(fileLogic(id)).progress;
+    final duration = ref.watch(fileLogic(id)).duration;
+    final position = ref.watch(fileLogic(id)).position;
+    final isPlaying = ref.watch(fileLogic(id)).isPlaying;
+    if (isShowIndicator) {
       return ImageIndicator(
-        file: widget.video,
-        progressValue: widget.progress,
-        width: widget.maxWidth / 2,
+        file: indicatorPicture,
+        progressValue: progress,
+        width: maxWidth / 2,
       );
     }
     return Align(
-      alignment: widget.isSender ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: isSender ? Alignment.centerRight : Alignment.centerLeft,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 7, 10),
         child: Stack(
@@ -79,18 +56,18 @@ class _VideoBubbleState extends State<VideoBubble> {
             ClipRRect(
               borderRadius: BorderRadius.circular(20),
               child: Hero(
-                tag: widget.video,
+                tag: video?.path ?? "",
                 child: Container(
                   color: Colors.black12,
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
                       SizedBox(
-                        width: widget.maxWidth,
-                        child: isInitialized
+                        width: maxWidth,
+                        child: isInitialized && video != null
                             ? AspectRatio(
-                                aspectRatio: widget.controller!.value.aspectRatio,
-                                child: VideoPlayer(widget.controller!),
+                                aspectRatio: controller!.value.aspectRatio,
+                                child: VideoPlayer(controller!),
                               )
                             : const AspectRatio(
                                 aspectRatio: 1,
@@ -108,7 +85,7 @@ class _VideoBubbleState extends State<VideoBubble> {
                           ),
                           child: FittedBox(
                             child: Text(
-                              '$_position/$_duration',
+                              '${position.getDuration()}/${duration.getDuration()}',
                               style: const TextStyle(color: Colors.white),
                             ),
                           ),
@@ -119,8 +96,7 @@ class _VideoBubbleState extends State<VideoBubble> {
                               visible: !isPlaying,
                               child: GestureDetector(
                                 onTap: () {
-                                  widget.controller?.play();
-                                  setState(() {});
+                                  controller?.play();
                                 },
                                 child: Icon(
                                   Icons.play_arrow_rounded,
@@ -135,19 +111,19 @@ class _VideoBubbleState extends State<VideoBubble> {
                 ),
               ),
             ),
-            if (widget.isSender)
+            if (isSender)
               Positioned(
                 right: -6.0,
                 bottom: -4.0,
-                child: SawIndicator(showIndicator: widget.isSaw),
+                child: SawIndicator(showIndicator: isSaw),
               ),
-            if (widget.like.isNotEmpty)
+            if (like.isNotEmpty)
               Positioned(
                 bottom: -6,
                 left: -9,
                 child: LikeIndicator(
-                  like: widget.like,
-                  onTap: () => widget.onTap(),
+                  like: like,
+                  onTap: () => onTap(),
                 ),
               ),
           ],

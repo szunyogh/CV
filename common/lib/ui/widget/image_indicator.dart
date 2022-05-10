@@ -41,31 +41,37 @@ class _ImageIndicatorState extends State<ImageIndicator> {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(widget.width, 0, 7, 10),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Image.memory(bytes!, fit: BoxFit.cover),
-            BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-              child: SizedBox(
-                height: widget.width / 2.7,
-                width: widget.width / 2.7,
-                child: TweenAnimationBuilder<double>(
-                  tween: Tween(begin: 0.0, end: widget.progressValue),
-                  duration: const Duration(milliseconds: 200),
-                  builder: (context, progress, child) {
-                    return CircularProgressIndicator(
-                      backgroundColor: Colors.grey[400]!,
-                      valueColor: const AlwaysStoppedAnimation(Colors.black),
-                      value: progress,
-                    );
-                  },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.black, width: 2),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Image.memory(bytes!, fit: BoxFit.cover),
+              BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                child: SizedBox(
+                  height: widget.width / 2.7,
+                  width: widget.width / 2.7,
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0.0, end: widget.progressValue),
+                    duration: const Duration(milliseconds: 200),
+                    builder: (context, progress, child) {
+                      return CircularProgressIndicator(
+                        backgroundColor: Colors.grey[400]!,
+                        valueColor: const AlwaysStoppedAnimation(Colors.black),
+                        value: progress,
+                      );
+                    },
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

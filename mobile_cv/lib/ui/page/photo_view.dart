@@ -1,13 +1,31 @@
+import 'dart:io';
+import 'package:common/ui/widget/picture_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_cv/ui/application.dart';
 
 class PhotoView extends StatelessWidget {
-  final Widget child;
-  final String picture;
+  final double maxWidth;
+  final bool isSender;
+  final File? picture;
+  final String indicatorPicture;
+  final bool isShowIndicator;
+  final bool isSaw;
+  final double progress;
+  final String errorMessage;
+  final String like;
+  final Function onTap;
   const PhotoView({
     Key? key,
-    required this.child,
-    required this.picture,
+    required this.maxWidth,
+    required this.isSender,
+    this.picture,
+    this.indicatorPicture = "",
+    this.isShowIndicator = false,
+    this.isSaw = false,
+    this.errorMessage = "",
+    this.progress = 0.0,
+    this.like = "",
+    required this.onTap,
   }) : super(key: key);
 
   @override
@@ -24,13 +42,24 @@ class PhotoView extends StatelessWidget {
               }),
         );
       },
-      child: child,
+      child: PictureBubble(
+        isSender: isSender,
+        picture: picture,
+        indicatorPicture: indicatorPicture,
+        isShowIndicator: isShowIndicator,
+        progress: progress,
+        isSaw: isSaw,
+        maxWidth: maxWidth,
+        like: like,
+        errorMessage: errorMessage,
+        onTap: () => onTap(),
+      ),
     );
   }
 }
 
 class PhotoViewWidget extends StatefulWidget {
-  final String picture;
+  final File? picture;
   const PhotoViewWidget({
     Key? key,
     required this.picture,
@@ -140,21 +169,21 @@ class _PhotoViewWidgetState extends State<PhotoViewWidget> with TickerProviderSt
                           height: height,
                           width: width,
                           child: Hero(
-                            tag: widget.picture,
+                            tag: widget.picture?.path ?? "",
                             child: Transform.scale(
                               scale: scaleFactor,
-                              child: Image.network(
-                                widget.picture,
-                                loadingBuilder: (c, w, e) {
-                                  if (e == null) return w;
-                                  return Container(
-                                    color: Colors.black12,
-                                    height: height,
-                                    width: width,
-                                    child: const Center(child: CircularProgressIndicator()),
-                                  );
-                                },
-                              ),
+                              child: widget.picture != null
+                                  ? Image.file(
+                                      widget.picture!,
+                                      errorBuilder: (c, o, s) {
+                                        return Container(
+                                          color: Colors.black12,
+                                          height: height,
+                                          width: width,
+                                        );
+                                      },
+                                    )
+                                  : Container(),
                             ),
                           ),
                         ),

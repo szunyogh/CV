@@ -10,6 +10,7 @@ import 'package:common/model/response/user.dart';
 import 'package:common/model/state/chat_state.dart';
 import 'package:common/repository/chat_repository.dart';
 import 'package:common/repository/interface/chat_interface.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:path_provider/path_provider.dart';
@@ -37,17 +38,19 @@ class ChatLogic extends BaseLogic<ChatState> {
       if (_connectivity != ConnectivityResult.none) {
         updateMessageSaw();
         updateMessage();
-        //updateImage(state.chats);
+        updateFile(state.chats);
       }
     });
   }
 
   Future<StreamSubscription<List<Chat>>> getMessage() async {
     return repo.getMessages(user.id).listen((event) async {
+      if (event.isEmpty) {
+        DefaultCacheManager().emptyCache();
+      }
       state = state.copyWith(chats: event);
       if (connectivity != ConnectivityResult.none) {
         updateMessageSaw();
-        updateImage(event);
         updateMessage();
       }
     });
@@ -59,7 +62,7 @@ class ChatLogic extends BaseLogic<ChatState> {
     });
   }
 
-  void updateImage(List<Chat> chats) async {
+  void updateFile(List<Chat> chats) async {
     if (!oneTimeRun) {
       final uploadList =
           state.chats.where((element) => element.isUpload == false && (element.file['url'] as String).isNotEmpty).toList();
