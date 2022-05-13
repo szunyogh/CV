@@ -3,6 +3,7 @@ import 'package:common/logic/chat_logic.dart';
 import 'package:common/model/state/loader_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_cv/helper/custom_rout.dart';
 import 'package:mobile_cv/service/notification_service.dart';
@@ -13,7 +14,7 @@ import 'package:mobile_cv/ui/page/login.dart';
 import 'package:mobile_cv/ui/widget/menu.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:common/logic/loader_logic.dart';
-import 'package:just_audio/just_audio.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class Root extends ConsumerStatefulWidget {
   const Root({Key? key}) : super(key: key);
@@ -31,7 +32,6 @@ class _RootState extends ConsumerState<Root> {
   @override
   void initState() {
     super.initState();
-    player.setAsset('assets/audio/notification.mp3');
     ref.read(notificationService).createNotificationChannel();
     ref.read(notificationService).initializeLocalNotifications((p0) {
       setState(() {
@@ -41,18 +41,16 @@ class _RootState extends ConsumerState<Root> {
 
     getInitialMessage();
 
-    FirebaseMessaging.onMessage.listen((message) {
+    FirebaseMessaging.onMessage.listen((message) async {
       RemoteNotification? notification = message.notification;
       if (notification != null && menuIndex != 1) {
         ref
             .read(notificationService)
             .showNotification(notification.hashCode, notification.title ?? "", notification.body ?? "");
       } else {
-        if (player.processingState == ProcessingState.completed) {
-          player.seek(Duration.zero);
-        } else {
-          player.play();
-        }
+        final bytes = await rootBundle.load('assets/audio/notification.mp3');
+        final audiobytes = bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes);
+        player.playBytes(audiobytes);
       }
     });
 

@@ -30,7 +30,7 @@ dependencies:
   json_annotation: ^4.4.0
   collection: ^1.15.0
   flutter_cache_manager: ^3.3.0
-  just_audio: ^0.9.20
+  audioplayers: ^0.20.1
   flutter_svg: ^1.0.3
   photo_manager: ^2.0.8 
   video_player: ^2.4.0
@@ -40,19 +40,14 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^1.0.0
+  flutter_lints: ^1.0.0 
   freezed: ^1.1.1
   build_runner: ^2.1.10
   json_serializable: ^6.1.6
+  
 flutter:
 
   uses-material-design: true
-
-  # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/assets-and-images/#resolution-aware.
-
-  # For details regarding adding assets from package dependencies, see
-  # https://flutter.dev/assets-and-images/#from-packages
 
   assets:
     - assets/audio/

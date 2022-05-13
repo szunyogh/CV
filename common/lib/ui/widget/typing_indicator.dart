@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:just_audio/just_audio.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class TypingIndicator extends StatefulWidget {
   const TypingIndicator({
@@ -33,7 +34,7 @@ class _TypingIndicatorState extends State<TypingIndicator> with TickerProviderSt
     Interval(0.35, 0.9),
     Interval(0.45, 1.0),
   ];
-  final player = AudioPlayer();
+  final player = AudioPlayer(mode: PlayerMode.MEDIA_PLAYER);
   Timer? timer;
 
   @override
@@ -91,11 +92,13 @@ class _TypingIndicatorState extends State<TypingIndicator> with TickerProviderSt
   }
 
   void _showIndicator() async {
-    final duration = await player.setAsset('assets/audio/typing.mp3');
-    if (duration != null) {
-      player.play();
+    final bytes = await rootBundle.load('assets/audio/typing.mp3');
+    final audiobytes = bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes);
+    final result = await player.playBytes(audiobytes);
+    if (result == 1) {
+      final duration = await player.onDurationChanged.first;
       timer = Timer.periodic(duration + const Duration(milliseconds: 200), (timer) {
-        player.seek(Duration.zero);
+        player.resume();
       });
     }
     Timer.periodic(const Duration(milliseconds: 1000), (_) {});
