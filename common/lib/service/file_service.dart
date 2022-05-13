@@ -22,9 +22,9 @@ class FileService {
   }
 
   Future<void> sendFile(String uId, String imageId, String url, String type) async {
-    return await FirebaseFirestore.instance.collection('users').doc(uId).collection('chat').doc(imageId).update({
+    return await FirebaseFirestore.instance.collection('users').doc(uId).collection('chat').doc(imageId).set({
       "isUpload": true,
       "file": {"url": url, "type": type}
-    });
+    }, SetOptions(merge: true));
   }
 }

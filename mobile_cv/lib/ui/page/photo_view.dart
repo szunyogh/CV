@@ -1,35 +1,36 @@
 import 'dart:io';
+import 'package:common/logic/file_logic.dart';
 import 'package:common/ui/widget/picture_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_cv/ui/application.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class PhotoView extends StatelessWidget {
+class PhotoView extends ConsumerWidget {
+  final String id;
   final double maxWidth;
   final bool isSender;
-  final File? picture;
   final String indicatorPicture;
   final bool isShowIndicator;
   final bool isSaw;
-  final double progress;
   final String errorMessage;
   final String like;
   final Function onTap;
   const PhotoView({
     Key? key,
+    required this.id,
     required this.maxWidth,
     required this.isSender,
-    this.picture,
     this.indicatorPicture = "",
     this.isShowIndicator = false,
     this.isSaw = false,
     this.errorMessage = "",
-    this.progress = 0.0,
     this.like = "",
     required this.onTap,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final picture = ref.watch(fileLogic(id)).file;
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -43,11 +44,11 @@ class PhotoView extends StatelessWidget {
         );
       },
       child: PictureBubble(
+        id: id,
         isSender: isSender,
         picture: picture,
         indicatorPicture: indicatorPicture,
         isShowIndicator: isShowIndicator,
-        progress: progress,
         isSaw: isSaw,
         maxWidth: maxWidth,
         like: like,

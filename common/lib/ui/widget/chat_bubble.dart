@@ -57,7 +57,8 @@ class ChatBubble extends StatelessWidget {
             if (like.isNotEmpty)
               Positioned(
                 bottom: 2,
-                left: -12,
+                left: isSender ? -12 : null,
+                right: isSender ? null : -3,
                 child: LikeIndicator(
                   like: like,
                   onTap: () => onTap(),

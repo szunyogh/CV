@@ -15,5 +15,6 @@ class FileState with _$FileState {
     @Default(Duration.zero) Duration position,
     @Default(false) bool isPlaying,
     VideoPlayerController? controller,
+    @Default(false) bool isInitialized,
   }) = _FileState;
 }

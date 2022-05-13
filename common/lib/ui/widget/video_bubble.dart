@@ -3,6 +3,7 @@ import 'package:common/logic/file_logic.dart';
 import 'package:common/ui/widget/image_indicator.dart';
 import 'package:common/ui/widget/like_indicator.dart';
 import 'package:common/ui/widget/saw_indicator.dart';
+import 'package:common/ui/widget/thumbnail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:video_player/video_player.dart';
@@ -12,7 +13,7 @@ class VideoBubble extends ConsumerWidget {
   final double maxWidth;
   final bool isSender;
   final File? video;
-  final String indicatorPicture;
+  final String thumbnail;
   final bool isShowIndicator;
   final bool isSaw;
   final String like;
@@ -24,7 +25,7 @@ class VideoBubble extends ConsumerWidget {
     required this.maxWidth,
     required this.isSender,
     this.video,
-    this.indicatorPicture = "",
+    this.thumbnail = "",
     this.isShowIndicator = false,
     this.isSaw = false,
     this.like = "",
@@ -34,14 +35,14 @@ class VideoBubble extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    bool isInitialized = controller?.value.isInitialized ?? false;
     final progress = ref.watch(fileLogic(id)).progress;
     final duration = ref.watch(fileLogic(id)).duration;
     final position = ref.watch(fileLogic(id)).position;
     final isPlaying = ref.watch(fileLogic(id)).isPlaying;
+    final isInitialized = ref.watch(fileLogic(id)).isInitialized;
     if (isShowIndicator) {
       return ImageIndicator(
-        file: indicatorPicture,
+        file: thumbnail,
         progressValue: progress,
         width: maxWidth / 2,
       );
@@ -49,7 +50,7 @@ class VideoBubble extends ConsumerWidget {
     return Align(
       alignment: isSender ? Alignment.centerRight : Alignment.centerLeft,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 0, 7, 10),
+        padding: const EdgeInsets.fromLTRB(0, 0, 7, 10),
         child: Stack(
           clipBehavior: Clip.none,
           children: [
@@ -66,11 +67,12 @@ class VideoBubble extends ConsumerWidget {
                         width: maxWidth,
                         child: isInitialized && video != null
                             ? AspectRatio(
-                                aspectRatio: controller!.value.aspectRatio,
+                                aspectRatio: controller?.value.aspectRatio ?? 9 / 16,
                                 child: VideoPlayer(controller!),
                               )
-                            : const AspectRatio(
-                                aspectRatio: 1,
+                            : ThumbnailWidget(
+                                thumbnail: thumbnail,
+                                maxWidth: maxWidth,
                               ),
                       ),
                       Positioned(
@@ -91,21 +93,19 @@ class VideoBubble extends ConsumerWidget {
                           ),
                         ),
                       ),
-                      isInitialized
-                          ? Visibility(
-                              visible: !isPlaying,
-                              child: GestureDetector(
-                                onTap: () {
-                                  controller?.play();
-                                },
-                                child: Icon(
-                                  Icons.play_arrow_rounded,
-                                  color: Colors.white.withOpacity(0.7),
-                                  size: 80,
-                                ),
-                              ),
-                            )
-                          : const CircularProgressIndicator()
+                      Visibility(
+                        visible: !isPlaying,
+                        child: GestureDetector(
+                          onTap: () {
+                            ref.read(fileLogic(id).notifier).videoInitalize();
+                          },
+                          child: Icon(
+                            Icons.play_arrow_rounded,
+                            color: Colors.white.withOpacity(0.7),
+                            size: 80,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -120,7 +120,8 @@ class VideoBubble extends ConsumerWidget {
             if (like.isNotEmpty)
               Positioned(
                 bottom: -6,
-                left: -9,
+                left: isSender ? -9 : null,
+                right: isSender ? null : -10,
                 child: LikeIndicator(
                   like: like,
                   onTap: () => onTap(),

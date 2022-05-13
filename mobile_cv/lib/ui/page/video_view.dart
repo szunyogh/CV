@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:common/logic/file_logic.dart';
+import 'package:common/ui/widget/thumbnail.dart';
 import 'package:common/ui/widget/video_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
@@ -11,7 +12,7 @@ class VideoView extends ConsumerWidget {
   final String id;
   final double maxWidth;
   final bool isSender;
-  final String indicatorPicture;
+  final String thumbnail;
   final bool isShowIndicator;
   final bool isSaw;
   final String like;
@@ -21,7 +22,7 @@ class VideoView extends ConsumerWidget {
     required this.id,
     required this.maxWidth,
     required this.isSender,
-    this.indicatorPicture = "",
+    this.thumbnail = "",
     this.isShowIndicator = false,
     this.isSaw = false,
     this.like = "",
@@ -34,26 +35,27 @@ class VideoView extends ConsumerWidget {
     final video = ref.watch(fileLogic(id)).file;
     return GestureDetector(
       onTap: () {
-        FocusScope.of(context).unfocus();
-        globalNavigatorKey.currentState?.push(
-          PageRouteBuilder(
-              opaque: false,
-              barrierColor: Colors.transparent,
-              pageBuilder: (BuildContext context, _, __) {
-                return VideoViewWidget(
-                  video: video,
-                  controller: _videoPlayerController,
-                  id: id,
-                );
-              }),
-        );
+        if (_videoPlayerController != null) {
+          globalNavigatorKey.currentState?.push(
+            PageRouteBuilder(
+                opaque: false,
+                barrierColor: Colors.transparent,
+                pageBuilder: (BuildContext context, _, __) {
+                  return VideoViewWidget(
+                    video: video,
+                    id: id,
+                    thumbnail: thumbnail,
+                  );
+                }),
+          );
+        }
       },
       child: VideoBubble(
         id: id,
         controller: _videoPlayerController,
         isSender: isSender,
         video: video,
-        indicatorPicture: indicatorPicture,
+        thumbnail: thumbnail,
         isShowIndicator: isShowIndicator,
         isSaw: isSaw,
         maxWidth: maxWidth,
@@ -66,13 +68,15 @@ class VideoView extends ConsumerWidget {
 
 class VideoViewWidget extends ConsumerStatefulWidget {
   final File? video;
-  final VideoPlayerController? controller;
   final String id;
+  final String thumbnail;
+  final VideoPlayerController? controller;
   const VideoViewWidget({
     Key? key,
     required this.video,
-    required this.controller,
     required this.id,
+    required this.thumbnail,
+    this.controller,
   }) : super(key: key);
 
   @override
@@ -128,10 +132,11 @@ class _VideoViewWidgetState extends ConsumerState<VideoViewWidget> with TickerPr
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
-    bool isInitialized = widget.controller?.value.isInitialized ?? false;
-    Duration duration = ref.watch(fileLogic(widget.id)).duration;
-    Duration position = ref.watch(fileLogic(widget.id)).position;
-    bool isPlaying = ref.watch(fileLogic(widget.id)).isPlaying;
+    final duration = ref.watch(fileLogic(widget.id)).duration;
+    final position = ref.watch(fileLogic(widget.id)).position;
+    final isPlaying = ref.watch(fileLogic(widget.id)).isPlaying;
+    final controller = ref.watch(fileLogic(widget.id)).controller;
+    final isInitialized = ref.watch(fileLogic(widget.id)).isInitialized;
     return WillPopScope(
       onWillPop: () async {
         animationController.reverse();
@@ -162,12 +167,14 @@ class _VideoViewWidgetState extends ConsumerState<VideoViewWidget> with TickerPr
                           width: width,
                           child: GestureDetector(
                             onTap: () {
-                              if (isPlaying) {
-                                widget.controller?.pause();
-                                setState(() {});
+                              if (controller != null) {
+                                if (isPlaying) {
+                                  controller.pause();
+                                } else {
+                                  controller.play();
+                                }
                               } else {
-                                widget.controller?.play();
-                                setState(() {});
+                                ref.read(fileLogic(widget.id).notifier).videoInitalize();
                               }
                             },
                             child: Stack(
@@ -177,10 +184,13 @@ class _VideoViewWidgetState extends ConsumerState<VideoViewWidget> with TickerPr
                                   tag: widget.video?.path ?? "",
                                   child: isInitialized && widget.video != null
                                       ? AspectRatio(
-                                          aspectRatio: widget.controller!.value.aspectRatio,
-                                          child: VideoPlayer(widget.controller!),
+                                          aspectRatio: controller!.value.aspectRatio,
+                                          child: VideoPlayer(controller),
                                         )
-                                      : Container(),
+                                      : ThumbnailWidget(
+                                          thumbnail: widget.thumbnail,
+                                          maxWidth: MediaQuery.of(context).size.width,
+                                        ),
                                 ),
                                 Positioned(
                                   bottom: 10,
@@ -191,10 +201,12 @@ class _VideoViewWidgetState extends ConsumerState<VideoViewWidget> with TickerPr
                                     children: [
                                       GestureDetector(
                                         onTap: () {
-                                          if (widget.controller?.value.volume == 0) {
-                                            widget.controller?.setVolume(1.0);
-                                          } else {
-                                            widget.controller?.setVolume(0.0);
+                                          if (controller != null) {
+                                            if (controller.value.volume == 0) {
+                                              controller.setVolume(1.0);
+                                            } else {
+                                              controller.setVolume(0.0);
+                                            }
                                           }
                                         },
                                         child: Container(
@@ -205,7 +217,7 @@ class _VideoViewWidgetState extends ConsumerState<VideoViewWidget> with TickerPr
                                             color: Colors.black.withOpacity(0.7),
                                           ),
                                           child: Icon(
-                                            widget.controller?.value.volume == 0
+                                            controller?.value.volume == 0
                                                 ? Icons.volume_off_rounded
                                                 : Icons.volume_up_rounded,
                                             size: 30,
@@ -234,7 +246,7 @@ class _VideoViewWidgetState extends ConsumerState<VideoViewWidget> with TickerPr
                                                 total: duration,
                                                 timeLabelLocation: TimeLabelLocation.none,
                                                 onSeek: (duration) {
-                                                  widget.controller?.seekTo(duration);
+                                                  controller?.seekTo(duration);
                                                 },
                                               ),
                                             ),
@@ -249,16 +261,14 @@ class _VideoViewWidgetState extends ConsumerState<VideoViewWidget> with TickerPr
                                     ],
                                   ),
                                 ),
-                                isInitialized
-                                    ? Visibility(
-                                        visible: !isPlaying,
-                                        child: Icon(
-                                          Icons.play_arrow_rounded,
-                                          color: Colors.white.withOpacity(0.7),
-                                          size: 80,
-                                        ),
-                                      )
-                                    : const CircularProgressIndicator()
+                                Visibility(
+                                  visible: !isPlaying,
+                                  child: Icon(
+                                    Icons.play_arrow_rounded,
+                                    color: Colors.white.withOpacity(0.7),
+                                    size: 80,
+                                  ),
+                                )
                               ],
                             ),
                           ),

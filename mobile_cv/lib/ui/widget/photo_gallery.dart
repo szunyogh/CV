@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:common/ui/theme/theme.dart';
 import 'package:common/ui/widget/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -15,9 +16,13 @@ class PhotoGallery extends StatefulWidget {
 }
 
 class _PhotoGalleryState extends State<PhotoGallery> {
-  List<AssetEntity> assets = [];
+  Map<String, List<AssetEntity>> assets = {};
 
   List<AssetEntity> selectedAssets = [];
+
+  List<AssetPathEntity> albums = [];
+
+  String selectedAlbum = "Recent";
 
   @override
   void initState() {
@@ -26,20 +31,16 @@ class _PhotoGalleryState extends State<PhotoGallery> {
   }
 
   void getAlbums() async {
-    final albums = await PhotoManager.getAssetPathList();
-
+    albums = await PhotoManager.getAssetPathList();
+    selectedAlbum = albums.first.name;
     for (var item in albums) {
-      if (item.name == 'Screenshots' ||
-          item.name == 'Camera' ||
-          item.name == 'Download' ||
-          item.name == 'Screen recordings') {
-        final recentAssets = await item.getAssetListRange(
-          start: 0,
-          end: 1000000,
-        );
-        assets.addAll(recentAssets);
-      }
+      final recentAssets = await item.getAssetListRange(
+        start: 0,
+        end: 1000000,
+      );
+      assets.addAll({item.name: recentAssets});
     }
+    debugPrint("");
     setState(() {});
   }
 
@@ -48,33 +49,31 @@ class _PhotoGalleryState extends State<PhotoGallery> {
     return Stack(
       alignment: Alignment.bottomCenter,
       children: [
-        GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            mainAxisSpacing: 7,
-            crossAxisSpacing: 7,
-          ),
-          padding: const EdgeInsets.all(7),
-          physics: const BouncingScrollPhysics(),
-          controller: widget.controller,
-          itemCount: assets.length,
-          itemBuilder: (_, index) {
-            final selected = selectedAssets.any((element) => element == assets[index]);
-            return AssetThumbnail(
-              asset: assets[index],
-              selected: selected,
-              onTap: (value) {
-                final _selected = selectedAssets.any((element) => element == value);
+        Column(
+          children: [
+            Albums(
+              albums: assets.keys.toList(),
+              onChangedAlbum: (value) async {
                 setState(() {
-                  if (!_selected) {
-                    selectedAssets.add(value);
-                  } else {
-                    selectedAssets.remove(value);
-                  }
+                  selectedAlbum = value;
                 });
               },
-            );
-          },
+              selectAlbum: selectedAlbum,
+            ),
+            if (assets[selectedAlbum] != null)
+              Expanded(
+                child: GridViewWidget(
+                  assets: assets[selectedAlbum]!,
+                  controller: widget.controller,
+                  selectedAssets: selectedAssets,
+                  onChanged: (value) {
+                    setState(() {
+                      selectedAssets = value;
+                    });
+                  },
+                ),
+              ),
+          ],
         ),
         if (selectedAssets.isNotEmpty)
           Positioned(
@@ -89,6 +88,93 @@ class _PhotoGalleryState extends State<PhotoGallery> {
             ),
           ),
       ],
+    );
+  }
+}
+
+class GridViewWidget extends StatelessWidget {
+  final ScrollController controller;
+  final List<AssetEntity> assets;
+  final List<AssetEntity> selectedAssets;
+  final Function(List<AssetEntity>) onChanged;
+  const GridViewWidget({
+    Key? key,
+    required this.assets,
+    required this.controller,
+    required this.selectedAssets,
+    required this.onChanged,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        mainAxisSpacing: 7,
+        crossAxisSpacing: 7,
+      ),
+      padding: const EdgeInsets.all(7),
+      physics: const BouncingScrollPhysics(),
+      controller: controller,
+      itemCount: assets.length,
+      itemBuilder: (_, index) {
+        final selected = selectedAssets.any((element) => element == assets[index]);
+        return AssetThumbnail(
+          asset: assets[index],
+          selected: selected,
+          onTap: (value) {
+            final _selected = selectedAssets.any((element) => element == value);
+            if (!_selected) {
+              selectedAssets.add(value);
+            } else {
+              selectedAssets.remove(value);
+            }
+            onChanged(selectedAssets);
+          },
+        );
+      },
+    );
+  }
+}
+
+class Albums extends StatelessWidget {
+  final List<String> albums;
+  final Function(String) onChangedAlbum;
+  final String selectAlbum;
+  const Albums({
+    Key? key,
+    required this.albums,
+    required this.selectAlbum,
+    required this.onChangedAlbum,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+      scrollDirection: Axis.horizontal,
+      child: Wrap(
+        runSpacing: 5,
+        spacing: 5,
+        children: albums.map((album) {
+          return GestureDetector(
+            onTap: () => onChangedAlbum(album),
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: album == selectAlbum ? blueColor : Colors.transparent,
+              ),
+              child: Text(
+                album,
+                style: TextStyle(
+                  color: album == selectAlbum ? Colors.white : Colors.black,
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 }
@@ -121,6 +207,14 @@ class _AssetThumbnailState extends State<AssetThumbnail> {
     setState(() {
       bytes = _bytes;
     });
+  }
+
+  @override
+  void didUpdateWidget(covariant AssetThumbnail oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.asset != widget.asset) {
+      getBytes();
+    }
   }
 
   @override

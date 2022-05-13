@@ -69,12 +69,7 @@ class ChatLogic extends BaseLogic<ChatState> {
       for (var item in uploadList) {
         final name = item.id.split('-').last;
         final type = item.file['type'] ?? "";
-        final bytes = base64.decode(item.file['url'] ?? "");
-
-        ///data/user/0/com.example.cv/app_flutter - getApplicationDocumentsDirectory
-        ///data/user/0/com.example.cv/cache - getTemporaryDirectory
-        String dir = (await getTemporaryDirectory()).path;
-        final file = await File("$dir/$name").writeAsBytes(bytes);
+        final file = File(item.file['url'] ?? "");
         read(fileLogic(item.id).notifier).uploadFile(name, file, type);
       }
       oneTimeRun = true;

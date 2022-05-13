@@ -7,14 +7,12 @@ import 'package:common/logic/profile_logic.dart';
 import 'package:common/model/response/chat.dart';
 import 'package:common/model/response/profile.dart';
 import 'package:common/ui/widget/circle_button.dart';
-import 'package:common/ui/widget/video_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:common/ui/widget/chat_bubble.dart';
 import 'package:common/logic/chat_logic.dart';
 import 'package:common/ui/widget/typing_indicator.dart';
-import 'package:common/ui/widget/picture_bubble.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_cv/ui/page/photo_view.dart';
 import 'dart:async';
@@ -23,7 +21,6 @@ import 'package:mobile_cv/ui/page/video_view.dart';
 import 'package:mobile_cv/ui/widget/like.dart';
 import 'package:mobile_cv/ui/widget/photo_gallery.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:video_player/video_player.dart';
 
 class ChatPage extends ConsumerStatefulWidget {
   final bool initialize;
@@ -98,14 +95,6 @@ class _ChatPageState extends ConsumerState<ChatPage> with WidgetsBindingObserver
                         reverse: true,
                         itemBuilder: (c, i) {
                           final sawIndex = chats.indexWhere((val) => val.isSee == true && val.sender == uId);
-                          if (i != 0) {
-                            if (chats[i - 1].isPicture || chats[i - 1].isVideo) {
-                              ref.read(fileLogic(chats[i - 1].id).notifier).initialize(url: chats[i - 1].file['url'] ?? "");
-                              if (chats[i - 1].isVideo) {
-                                ref.read(fileLogic(chats[i - 1].id).notifier).videoInitalize();
-                              }
-                            }
-                          }
 
                           if (i == 0) {
                             return Align(
@@ -188,7 +177,7 @@ class EmptyWidget extends StatelessWidget {
   }
 }
 
-class ListItem extends ConsumerWidget {
+class ListItem extends ConsumerStatefulWidget {
   final Chat chat;
   final bool isSender;
   final bool isSaw;
@@ -202,45 +191,53 @@ class ListItem extends ConsumerWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ListItem> createState() => _ListItemState();
+}
+
+class _ListItemState extends ConsumerState<ListItem> {
+  @override
+  void initState() {
+    super.initState();
+    ref.read(fileLogic(widget.chat.id).notifier).initialize(url: widget.chat.file['url'] ?? "");
+  }
+
+  @override
+  Widget build(BuildContext context) {
     double maxWidth = MediaQuery.of(context).size.width / 1.65;
-    if (chat.isPicture) {
-      final progress = ref.watch(fileLogic(chat.id)).progress;
-      final file = ref.watch(fileLogic(chat.id)).file;
+    if (widget.chat.isPicture) {
       return PhotoView(
-        isSender: isSender,
-        picture: file,
-        indicatorPicture: chat.file['url'] ?? "",
-        isShowIndicator: !chat.isUpload,
-        progress: progress,
-        isSaw: isSaw,
+        id: widget.chat.id,
+        isSender: widget.isSender,
+        indicatorPicture: widget.chat.file['thumbnail'] ?? "",
+        isShowIndicator: !widget.chat.isUpload,
+        isSaw: widget.isSaw,
         maxWidth: maxWidth,
-        like: chat.like,
-        errorMessage: chat.isUpload ? "Hiba a kép betöltése során" : "A kép feltöltése folyamatban",
-        onTap: () => onTap(),
+        like: widget.chat.like,
+        errorMessage: widget.chat.isUpload ? "Hiba a kép betöltése során" : "A kép feltöltése folyamatban",
+        onTap: () => widget.onTap(),
       );
     }
-    if (chat.isVideo) {
+    if (widget.chat.isVideo) {
       return VideoView(
-        isSender: isSender,
-        indicatorPicture: chat.file['url'] ?? "",
-        id: chat.id,
-        isShowIndicator: !chat.isUpload,
-        isSaw: isSaw,
+        isSender: widget.isSender,
+        thumbnail: widget.chat.file['thumbnail'] ?? "",
+        id: widget.chat.id,
+        isShowIndicator: !widget.chat.isUpload,
+        isSaw: widget.isSaw,
         maxWidth: maxWidth,
-        like: chat.like,
-        onTap: () => onTap(),
+        like: widget.chat.like,
+        onTap: () => widget.onTap(),
       );
     }
     return ChatBubble(
       maxWidth: maxWidth,
-      isSender: isSender,
-      message: chat.message,
-      isSaw: isSaw,
-      isShowIndicator: !chat.isUpload,
-      like: chat.like,
+      isSender: widget.isSender,
+      message: widget.chat.message,
+      isSaw: widget.isSaw,
+      isShowIndicator: !widget.chat.isUpload,
+      like: widget.chat.like,
       doubleTap: () {
-        Clipboard.setData(ClipboardData(text: chat.message)).then((_) {
+        Clipboard.setData(ClipboardData(text: widget.chat.message)).then((_) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               backgroundColor: Colors.green,
@@ -249,7 +246,7 @@ class ListItem extends ConsumerWidget {
           );
         });
       },
-      onTap: () => onTap(),
+      onTap: () => widget.onTap(),
     );
   }
 }
@@ -309,11 +306,13 @@ class _BottomBarState extends ConsumerState<BottomBar> {
         children: [
           InkWell(
             onTap: () async {
-              final image = await picker.pickImage(source: ImageSource.camera);
+              final image = await picker.pickImage(source: ImageSource.camera, imageQuality: 20);
               final ran = Random();
               final id = "${uId.substring(0, 5)}-${ran.nextInt(13402)}-${image!.name}";
               final bytes = await image.readAsBytes();
-              ref.read(fileLogic(id).notifier).getFile("image", image.name, base64.encode(bytes), File(image.path));
+              ref
+                  .read(fileLogic(id).notifier)
+                  .getFile("image", image.name, base64.encode(bytes), image.path, File(image.path));
             },
             child: const Icon(
               Icons.camera_alt,
@@ -331,7 +330,7 @@ class _BottomBarState extends ConsumerState<BottomBar> {
                 final id = "${uId.substring(0, 5)}-${ran.nextInt(13402)}-${element.title ?? ""}";
                 ref
                     .read(fileLogic(id).notifier)
-                    .getFile(element.type.name, element.title ?? "", base64.encode(bytes!), file!);
+                    .getFile(element.type.name, element.title ?? "", base64.encode(bytes!), file?.path ?? "", file!);
               });
             },
             child: const Icon(

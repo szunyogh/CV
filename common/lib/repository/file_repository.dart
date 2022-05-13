@@ -16,7 +16,7 @@ class FileRepository implements IFileRepository {
     try {
       await service.getFile(data, id);
     } catch (err) {
-      throw Exception();
+      throw Exception(err);
     }
   }
 

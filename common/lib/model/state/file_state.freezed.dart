@@ -24,7 +24,8 @@ class _$FileStateTearOff {
       Duration duration = Duration.zero,
       Duration position = Duration.zero,
       bool isPlaying = false,
-      VideoPlayerController? controller}) {
+      VideoPlayerController? controller,
+      bool isInitialized = false}) {
     return _FileState(
       progress: progress,
       file: file,
@@ -32,6 +33,7 @@ class _$FileStateTearOff {
       position: position,
       isPlaying: isPlaying,
       controller: controller,
+      isInitialized: isInitialized,
     );
   }
 }
@@ -47,6 +49,7 @@ mixin _$FileState {
   Duration get position => throw _privateConstructorUsedError;
   bool get isPlaying => throw _privateConstructorUsedError;
   VideoPlayerController? get controller => throw _privateConstructorUsedError;
+  bool get isInitialized => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $FileStateCopyWith<FileState> get copyWith =>
@@ -63,7 +66,8 @@ abstract class $FileStateCopyWith<$Res> {
       Duration duration,
       Duration position,
       bool isPlaying,
-      VideoPlayerController? controller});
+      VideoPlayerController? controller,
+      bool isInitialized});
 }
 
 /// @nodoc
@@ -82,6 +86,7 @@ class _$FileStateCopyWithImpl<$Res> implements $FileStateCopyWith<$Res> {
     Object? position = freezed,
     Object? isPlaying = freezed,
     Object? controller = freezed,
+    Object? isInitialized = freezed,
   }) {
     return _then(_value.copyWith(
       progress: progress == freezed
@@ -108,6 +113,10 @@ class _$FileStateCopyWithImpl<$Res> implements $FileStateCopyWith<$Res> {
           ? _value.controller
           : controller // ignore: cast_nullable_to_non_nullable
               as VideoPlayerController?,
+      isInitialized: isInitialized == freezed
+          ? _value.isInitialized
+          : isInitialized // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -124,7 +133,8 @@ abstract class _$FileStateCopyWith<$Res> implements $FileStateCopyWith<$Res> {
       Duration duration,
       Duration position,
       bool isPlaying,
-      VideoPlayerController? controller});
+      VideoPlayerController? controller,
+      bool isInitialized});
 }
 
 /// @nodoc
@@ -144,6 +154,7 @@ class __$FileStateCopyWithImpl<$Res> extends _$FileStateCopyWithImpl<$Res>
     Object? position = freezed,
     Object? isPlaying = freezed,
     Object? controller = freezed,
+    Object? isInitialized = freezed,
   }) {
     return _then(_FileState(
       progress: progress == freezed
@@ -170,6 +181,10 @@ class __$FileStateCopyWithImpl<$Res> extends _$FileStateCopyWithImpl<$Res>
           ? _value.controller
           : controller // ignore: cast_nullable_to_non_nullable
               as VideoPlayerController?,
+      isInitialized: isInitialized == freezed
+          ? _value.isInitialized
+          : isInitialized // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -183,7 +198,8 @@ class _$_FileState extends _FileState {
       this.duration = Duration.zero,
       this.position = Duration.zero,
       this.isPlaying = false,
-      this.controller})
+      this.controller,
+      this.isInitialized = false})
       : super._();
 
   @JsonKey()
@@ -202,10 +218,13 @@ class _$_FileState extends _FileState {
   final bool isPlaying;
   @override
   final VideoPlayerController? controller;
+  @JsonKey()
+  @override
+  final bool isInitialized;
 
   @override
   String toString() {
-    return 'FileState(progress: $progress, file: $file, duration: $duration, position: $position, isPlaying: $isPlaying, controller: $controller)';
+    return 'FileState(progress: $progress, file: $file, duration: $duration, position: $position, isPlaying: $isPlaying, controller: $controller, isInitialized: $isInitialized)';
   }
 
   @override
@@ -219,7 +238,9 @@ class _$_FileState extends _FileState {
             const DeepCollectionEquality().equals(other.position, position) &&
             const DeepCollectionEquality().equals(other.isPlaying, isPlaying) &&
             const DeepCollectionEquality()
-                .equals(other.controller, controller));
+                .equals(other.controller, controller) &&
+            const DeepCollectionEquality()
+                .equals(other.isInitialized, isInitialized));
   }
 
   @override
@@ -230,7 +251,8 @@ class _$_FileState extends _FileState {
       const DeepCollectionEquality().hash(duration),
       const DeepCollectionEquality().hash(position),
       const DeepCollectionEquality().hash(isPlaying),
-      const DeepCollectionEquality().hash(controller));
+      const DeepCollectionEquality().hash(controller),
+      const DeepCollectionEquality().hash(isInitialized));
 
   @JsonKey(ignore: true)
   @override
@@ -245,7 +267,8 @@ abstract class _FileState extends FileState {
       Duration duration,
       Duration position,
       bool isPlaying,
-      VideoPlayerController? controller}) = _$_FileState;
+      VideoPlayerController? controller,
+      bool isInitialized}) = _$_FileState;
   const _FileState._() : super._();
 
   @override
@@ -260,6 +283,8 @@ abstract class _FileState extends FileState {
   bool get isPlaying;
   @override
   VideoPlayerController? get controller;
+  @override
+  bool get isInitialized;
   @override
   @JsonKey(ignore: true)
   _$FileStateCopyWith<_FileState> get copyWith =>

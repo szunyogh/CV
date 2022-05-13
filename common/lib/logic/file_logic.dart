@@ -8,13 +8,13 @@ import 'package:common/model/state/file_state.dart';
 import 'package:common/repository/file_repository.dart';
 import 'package:common/repository/interface/file_interface.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:video_compress/video_compress.dart';
 import 'package:video_player/video_player.dart';
 
-final fileLogic =
-    StateNotifierProvider.family.autoDispose<FileLogic, FileState, String>((ref, id) => FileLogic(ref.read, id));
+final fileLogic = StateNotifierProvider.family<FileLogic, FileState, String>((ref, id) => FileLogic(ref.read, id));
 
 class FileLogic extends BaseLogic<FileState> {
   final String id;
@@ -28,19 +28,34 @@ class FileLogic extends BaseLogic<FileState> {
 
   @override
   Future<void> initialize({String url = ""}) async {
+    if (state.file != null) return;
     try {
       final cachedFile = await DefaultCacheManager().getSingleFile(url);
       state = state.copyWith(file: cachedFile);
-    } catch (e) {}
+    } catch (e) {
+      throw Exception(e);
+    }
   }
 
   void videoInitalize() {
     if (state.file == null) return;
-    controller = VideoPlayerController.file(state.file!)..initialize();
+    controller = VideoPlayerController.file(state.file!)
+      ..initialize().then((value) {
+        state = state.copyWith(isInitialized: true);
+        controller?.play();
+      });
     state = state.copyWith(controller: controller);
     controller?.addListener(() {
       if (controller?.value.position == controller?.value.duration) {
-        controller?.seekTo(const Duration(seconds: 0));
+        state = state.copyWith(
+          isPlaying: false,
+          position: Duration.zero,
+          isInitialized: false,
+          controller: null,
+        );
+        controller?.removeListener(() {});
+        controller?.dispose();
+        controller = null;
       }
       state = state.copyWith(
         duration: controller?.value.duration ?? Duration.zero,
@@ -52,12 +67,13 @@ class FileLogic extends BaseLogic<FileState> {
 
   @override
   void dispose() {
+    if (state.controller == null) return;
     controller?.removeListener(() {});
     controller?.dispose();
     state = state.copyWith(
+      isInitialized: false,
       controller: null,
       isPlaying: false,
-      duration: Duration.zero,
       position: Duration.zero,
     );
     controller = null;
@@ -65,43 +81,26 @@ class FileLogic extends BaseLogic<FileState> {
   }
 
   Future<void> uploadFile(String name, File file, String type) async {
-    File? _file;
-    if (type == "video") {
-      try {
-        await VideoCompress.setLogLevel(0);
-        final mediaInfo = await VideoCompress.compressVideo(file.path, quality: VideoQuality.MediumQuality);
-        _file = mediaInfo?.file;
-      } catch (e) {
-        VideoCompress.cancelCompression();
+    repo.uploadFile(user.id, name, file).listen((event) async {
+      state = state.copyWith(progress: (event.bytesTransferred / event.totalBytes));
+      if (event.state == TaskState.success) {
+        final url = await downloadFile(name, file);
+        initialize(url: url);
+        sendFile(type, url);
+      } else if (event.state == TaskState.error) {
+        removeFile();
       }
-    } else {
-      _file = file;
-    }
-    if (_file != null) {
-      repo.uploadFile(user.id, name, _file).listen((event) async {
-        state = state.copyWith(progress: (event.bytesTransferred / event.totalBytes));
-        if (event.state == TaskState.success) {
-          final url = await downloadFile(name, file);
-          final cachedFile = await DefaultCacheManager().getSingleFile(url);
-          if (type == "video") {
-            videoInitalize();
-          }
-          state = state.copyWith(file: cachedFile);
-          sendFile(type, url);
-        } else if (event.state == TaskState.error) {
-          removeFile();
-        }
-      });
-    }
+    });
   }
 
   Future<String> downloadFile(String name, File file) async {
     return repo.downloadFile(user.id, name, file);
   }
 
-  Future<void> getFile(String type, String name, String? base64, File file) async {
+  Future<void> getFile(String type, String name, String? base64, String filePath, File file) async {
     if (base64 == null) return;
-    final request = Chat(id: id, dateSent: DateTime.now(), file: {"url": base64, "type": type}, sender: user.id);
+    final request =
+        Chat(id: id, dateSent: DateTime.now(), file: {"url": filePath, "type": type, "thumbnail": base64}, sender: user.id);
     await repo.getFile(request.toJson(), user.id);
     uploadFile(name, file, type);
   }

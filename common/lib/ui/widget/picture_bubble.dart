@@ -1,22 +1,25 @@
 import 'dart:io';
+import 'package:common/logic/file_logic.dart';
 import 'package:common/ui/widget/image_indicator.dart';
 import 'package:common/ui/widget/like_indicator.dart';
 import 'package:common/ui/widget/saw_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class PictureBubble extends StatelessWidget {
+class PictureBubble extends ConsumerWidget {
+  final String id;
   final double maxWidth;
   final bool isSender;
   final File? picture;
   final String indicatorPicture;
   final bool isShowIndicator;
   final bool isSaw;
-  final double progress;
   final String errorMessage;
   final String like;
   final Function onTap;
   const PictureBubble({
     Key? key,
+    required this.id,
     required this.maxWidth,
     required this.isSender,
     this.picture,
@@ -24,13 +27,13 @@ class PictureBubble extends StatelessWidget {
     this.isShowIndicator = false,
     this.isSaw = false,
     this.errorMessage = "",
-    this.progress = 0.0,
     this.like = "",
     required this.onTap,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final progress = ref.watch(fileLogic(id)).progress;
     if (isShowIndicator) {
       return ImageIndicator(
         file: indicatorPicture,
@@ -41,7 +44,7 @@ class PictureBubble extends StatelessWidget {
     return Align(
       alignment: isSender ? Alignment.centerRight : Alignment.centerLeft,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 0, 7, 10),
+        padding: const EdgeInsets.fromLTRB(0, 0, 7, 10),
         child: Stack(
           clipBehavior: Clip.none,
           children: [
@@ -55,7 +58,7 @@ class PictureBubble extends StatelessWidget {
                         width: maxWidth,
                         errorBuilder: (c, o, s) {
                           return Container(
-                            color: Colors.black12,
+                            color: Colors.red[400],
                             padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
                             child: Text(
                               errorMessage,
@@ -83,7 +86,8 @@ class PictureBubble extends StatelessWidget {
             if (like.isNotEmpty)
               Positioned(
                 bottom: -6,
-                left: -9,
+                left: isSender ? -9 : null,
+                right: isSender ? null : -9,
                 child: LikeIndicator(
                   like: like,
                   onTap: () => onTap(),
