@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
+import 'package:audioplayers/audioplayers.dart';
 import 'dart:io';
 import 'package:common/logic/auth_logic.dart';
 import 'package:common/logic/base.dart';
@@ -10,10 +10,10 @@ import 'package:common/model/response/user.dart';
 import 'package:common/model/state/chat_state.dart';
 import 'package:common/repository/chat_repository.dart';
 import 'package:common/repository/interface/chat_interface.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:path_provider/path_provider.dart';
 
 final chatLogic = StateNotifierProvider<ChatLogic, ChatState>((ref) => ChatLogic(ref.read));
 
@@ -27,6 +27,9 @@ class ChatLogic extends BaseLogic<ChatState> {
   User get user => read(authenticationLogic).currentUser;
 
   ConnectivityResult connectivity = ConnectivityResult.none;
+
+  AudioPlayer? player;
+  Timer? timer;
 
   @override
   Future<StreamSubscription<ConnectivityResult>> initialize({bool initialize = false}) async {
@@ -76,9 +79,37 @@ class ChatLogic extends BaseLogic<ChatState> {
     }
   }
 
+  void stopTypingSound() {
+    player?.stop();
+    player?.dispose();
+    timer?.cancel();
+    timer = null;
+    player = null;
+  }
+
+  void playTypingSound() async {
+    player ??= AudioPlayer();
+    if (player != null) {
+      final bytes = await rootBundle.load('assets/audio/typing.mp3');
+      final audiobytes = bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes);
+      final result = await player?.playBytes(audiobytes);
+      if (result == 1) {
+        final duration = await player?.onDurationChanged.first;
+        timer ??= Timer.periodic(duration ?? Duration.zero + const Duration(milliseconds: 200), (timer) {
+          player?.resume();
+        });
+      }
+    }
+  }
+
   Future<StreamSubscription<bool>> getTyping() async {
     return repo.getTyping(user.id).listen((event) async {
       state = state.copyWith(isTyping: event);
+      if (event) {
+        playTypingSound();
+      } else {
+        stopTypingSound();
+      }
     });
   }
 

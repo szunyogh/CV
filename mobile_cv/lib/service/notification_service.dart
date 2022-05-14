@@ -57,7 +57,7 @@ class NotificationService {
         enableLights: true,
         ledColor: Colors.green,
         groupId: "message_group",
-        sound: RawResourceAndroidNotificationSound('sound'));
+        sound: RawResourceAndroidNotificationSound('notification'));
 
     await flutterLocalNotificationsPlugin!
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()

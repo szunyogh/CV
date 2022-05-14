@@ -65,21 +65,6 @@ class FileLogic extends BaseLogic<FileState> {
     });
   }
 
-  @override
-  void dispose() {
-    if (state.controller == null) return;
-    controller?.removeListener(() {});
-    controller?.dispose();
-    state = state.copyWith(
-      isInitialized: false,
-      controller: null,
-      isPlaying: false,
-      position: Duration.zero,
-    );
-    controller = null;
-    super.dispose();
-  }
-
   Future<void> uploadFile(String name, File file, String type) async {
     repo.uploadFile(user.id, name, file).listen((event) async {
       state = state.copyWith(progress: (event.bytesTransferred / event.totalBytes));

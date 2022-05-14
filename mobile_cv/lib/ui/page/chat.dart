@@ -59,6 +59,12 @@ class _ChatPageState extends ConsumerState<ChatPage> with WidgetsBindingObserver
   }
 
   @override
+  void deactivate() {
+    ref.read(chatLogic.notifier).stopTypingSound();
+    super.deactivate();
+  }
+
+  @override
   void dispose() {
     connectivityStream?.cancel();
     chatListStream?.cancel();

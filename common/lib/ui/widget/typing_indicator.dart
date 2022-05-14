@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -34,13 +33,11 @@ class _TypingIndicatorState extends State<TypingIndicator> with TickerProviderSt
     Interval(0.35, 0.9),
     Interval(0.45, 1.0),
   ];
-  AudioPlayer? player;
-  Timer? timer;
 
   @override
   void initState() {
     super.initState();
-    player = AudioPlayer();
+
     _appearanceController = AnimationController(
       vsync: this,
     )..addListener(() {
@@ -86,24 +83,10 @@ class _TypingIndicatorState extends State<TypingIndicator> with TickerProviderSt
   void dispose() {
     _appearanceController.dispose();
     _repeatingController.dispose();
-    player?.stop();
-    player?.dispose();
-    timer?.cancel();
-    timer = null;
-    player = null;
     super.dispose();
   }
 
   void _showIndicator() async {
-    final bytes = await rootBundle.load('assets/audio/typing.mp3');
-    final audiobytes = bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes);
-    final result = await player?.playBytes(audiobytes);
-    if (result == 1) {
-      final duration = await player?.onDurationChanged.first;
-      timer ??= Timer.periodic(duration ?? Duration.zero + const Duration(milliseconds: 200), (timer) {
-        player?.resume();
-      });
-    }
     _appearanceController
       ..duration = const Duration(milliseconds: 750)
       ..forward();
@@ -111,9 +94,6 @@ class _TypingIndicatorState extends State<TypingIndicator> with TickerProviderSt
   }
 
   void _hideIndicator() {
-    player?.stop();
-    timer?.cancel();
-    timer = null;
     _appearanceController
       ..duration = const Duration(milliseconds: 150)
       ..reverse();

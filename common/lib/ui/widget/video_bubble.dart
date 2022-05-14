@@ -40,6 +40,7 @@ class VideoBubble extends ConsumerWidget {
     final position = ref.watch(fileLogic(id)).position;
     final isPlaying = ref.watch(fileLogic(id)).isPlaying;
     final isInitialized = ref.watch(fileLogic(id)).isInitialized;
+    final aspectRatio = controller?.value.aspectRatio ?? 9 / 16;
     if (isShowIndicator) {
       return ImageIndicator(
         file: thumbnail,
@@ -59,54 +60,58 @@ class VideoBubble extends ConsumerWidget {
               child: Hero(
                 tag: video?.path ?? "",
                 child: Container(
+                  width: maxWidth,
                   color: Colors.black12,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      SizedBox(
-                        width: maxWidth,
-                        child: isInitialized && video != null
-                            ? AspectRatio(
-                                aspectRatio: controller?.value.aspectRatio ?? 9 / 16,
-                                child: VideoPlayer(controller!),
+                  child: AspectRatio(
+                    aspectRatio: 9 / 16,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        isInitialized && video != null
+                            ? SizedBox(
+                                width: maxWidth,
+                                child: AspectRatio(
+                                  aspectRatio: aspectRatio,
+                                  child: VideoPlayer(controller!),
+                                ),
                               )
                             : ThumbnailWidget(
                                 thumbnail: thumbnail,
                                 maxWidth: maxWidth,
                               ),
-                      ),
-                      Positioned(
-                        bottom: 10,
-                        right: 10,
-                        child: Container(
-                          height: 30,
-                          padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15),
-                            color: Colors.black.withOpacity(0.7),
-                          ),
-                          child: FittedBox(
-                            child: Text(
-                              '${position.getDuration()}/${duration.getDuration()}',
-                              style: const TextStyle(color: Colors.white),
+                        Positioned(
+                          bottom: 10,
+                          right: 10,
+                          child: Container(
+                            height: 30,
+                            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
+                              color: Colors.black.withOpacity(0.7),
+                            ),
+                            child: FittedBox(
+                              child: Text(
+                                '${position.getDuration()}/${duration.getDuration()}',
+                                style: const TextStyle(color: Colors.white),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      Visibility(
-                        visible: !isPlaying,
-                        child: GestureDetector(
-                          onTap: () {
-                            ref.read(fileLogic(id).notifier).videoInitalize();
-                          },
-                          child: Icon(
-                            Icons.play_arrow_rounded,
-                            color: Colors.white.withOpacity(0.7),
-                            size: 80,
+                        Visibility(
+                          visible: !isPlaying,
+                          child: GestureDetector(
+                            onTap: () {
+                              ref.read(fileLogic(id).notifier).videoInitalize();
+                            },
+                            child: Icon(
+                              Icons.play_arrow_rounded,
+                              color: Colors.white.withOpacity(0.7),
+                              size: 80,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

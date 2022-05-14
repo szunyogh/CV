@@ -162,7 +162,7 @@ class _MenuRootState extends ConsumerState<_MenuRoot> {
   void initState() {
     selectedMenuIndex = widget.initalMenuIndex;
     super.initState();
-    SchedulerBinding.instance?.addPostFrameCallback((timeStamp) async {
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
       await ref.read(authenticationLogic.notifier).initialize();
       ref.read(chatLogic.notifier).getBadge();
     });

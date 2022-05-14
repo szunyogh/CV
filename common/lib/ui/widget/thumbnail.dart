@@ -35,22 +35,19 @@ class _ThumbnailWidgetState extends State<ThumbnailWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (bytes == null) {
-      return SizedBox(
-        width: widget.maxWidth,
-        child: AspectRatio(
+    return Image.memory(
+      bytes!,
+      fit: BoxFit.cover,
+      width: widget.maxWidth,
+      errorBuilder: (c, o, s) {
+        return AspectRatio(
           aspectRatio: 9 / 16,
           child: Container(
             color: Colors.black12,
             child: const CircularProgressIndicator(),
           ),
-        ),
-      );
-    }
-    return Image.memory(
-      bytes!,
-      fit: BoxFit.cover,
-      width: widget.maxWidth,
+        );
+      },
     );
   }
 }
