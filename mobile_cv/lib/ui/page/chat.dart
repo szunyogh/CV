@@ -43,9 +43,9 @@ class _ChatPageState extends ConsumerState<ChatPage> with WidgetsBindingObserver
     super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
       await WidgetsBinding.instance?.endOfFrame;
-      connectivityStream = await ref.read(chatLogic.notifier).initialize(initialize: widget.initialize);
-      chatListStream = await ref.read(chatLogic.notifier).getMessage();
-      typingStream = await ref.read(chatLogic.notifier).getTyping();
+      connectivityStream ??= await ref.read(chatLogic.notifier).initialize(initialize: widget.initialize);
+      chatListStream ??= await ref.read(chatLogic.notifier).getMessage();
+      typingStream ??= await ref.read(chatLogic.notifier).getTyping();
     });
     WidgetsBinding.instance?.addObserver(this);
   }
@@ -63,6 +63,9 @@ class _ChatPageState extends ConsumerState<ChatPage> with WidgetsBindingObserver
     connectivityStream?.cancel();
     chatListStream?.cancel();
     typingStream?.cancel();
+    connectivityStream = null;
+    chatListStream = null;
+    typingStream = null;
     WidgetsBinding.instance?.removeObserver(this);
     super.dispose();
   }
