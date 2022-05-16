@@ -1,3 +1,4 @@
+import 'package:common/helper/exception.dart';
 import 'package:common/logic/base.dart';
 import 'package:common/logic/loader_logic.dart';
 import 'package:common/model/response/user.dart' as user;
@@ -28,19 +29,35 @@ class AuthenticationLogic extends BaseLogic<AuthenticationState> {
   }
 
   Future<void> getUser() async {
-    read(loaderLogic.notifier).showLoader("Betöltés folyamatban...");
-    final user = await repo.getUser();
-    state = state.copyWith(dto: user);
+    read(loaderLogic.notifier).showLoader();
+    try {
+      final user = await repo.getUser();
+      state = state.copyWith(dto: user);
+    } catch (e) {
+      read(loaderLogic.notifier).hideLoader();
+      String error = ExceptionHelper.getExceptionMessage(e.toString());
+      read(loaderLogic.notifier).showError(error);
+    }
     read(loaderLogic.notifier).hideLoader();
   }
 
   Future<void> login() async {
-    final user = await repo.signInWithGoogle();
-    state = state.copyWith(dto: user);
+    try {
+      final user = await repo.signInWithGoogle();
+      state = state.copyWith(dto: user);
+    } catch (e) {
+      String error = ExceptionHelper.getExceptionMessage(e.toString());
+      read(loaderLogic.notifier).showError(error);
+    }
   }
 
   Future<void> logout() async {
-    await repo.signOut();
-    state = state.copyWith(dto: const user.User());
+    try {
+      await repo.signOut();
+      state = state.copyWith(dto: const user.User());
+    } catch (e) {
+      String error = ExceptionHelper.getExceptionMessage(e.toString());
+      read(loaderLogic.notifier).showError(error);
+    }
   }
 }

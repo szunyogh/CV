@@ -1,4 +1,6 @@
+import 'package:common/helper/exception.dart';
 import 'package:common/logic/base.dart';
+import 'package:common/logic/loader_logic.dart';
 import 'package:common/model/state/profile_state.dart';
 import 'package:common/repository/interface/profile_interface.dart';
 import 'package:common/repository/profile_repository.dart';
@@ -21,29 +23,49 @@ class ProfileLogic extends BaseLogic<ProfileState> {
   }
 
   Future<void> getProfile() async {
-    final profile = await repo.getProfile();
-    state = state.copyWith(profile: profile);
+    try {
+      final profile = await repo.getProfile();
+      state = state.copyWith(profile: profile);
+    } catch (e) {
+      String error = ExceptionHelper.getExceptionMessage(e.toString());
+      read(loaderLogic.notifier).showError(error);
+    }
   }
 
   Future<void> getExperiences() async {
-    Duration duration = const Duration();
-    final exp = await repo.getExperiences(state.profileId);
-    final experiences = exp.sortedBy((element) => element.beginning!);
-    for (var item in experiences) {
-      if (item.completion != null) {
-        duration += item.completion!.difference(item.beginning!);
+    try {
+      Duration duration = const Duration();
+      final exp = await repo.getExperiences(state.profileId);
+      final experiences = exp.sortedBy((element) => element.beginning!);
+      for (var item in experiences) {
+        if (item.completion != null) {
+          duration += item.completion!.difference(item.beginning!);
+        }
       }
+      state = state.copyWith(experiences: exp, yearsOfExperience: duration.inDays);
+    } catch (e) {
+      String error = ExceptionHelper.getExceptionMessage(e.toString());
+      read(loaderLogic.notifier).showError(error);
     }
-    state = state.copyWith(experiences: exp, yearsOfExperience: duration.inDays);
   }
 
   Future<void> getMyAbilities() async {
-    final myAbilities = await repo.getMyAbilities(state.profileId);
-    state = state.copyWith(myAbilities: myAbilities);
+    try {
+      final myAbilities = await repo.getMyAbilities(state.profileId);
+      state = state.copyWith(myAbilities: myAbilities);
+    } catch (e) {
+      String error = ExceptionHelper.getExceptionMessage(e.toString());
+      read(loaderLogic.notifier).showError(error);
+    }
   }
 
   Future<void> getSchools() async {
-    final schools = await repo.getSchools(state.profileId);
-    state = state.copyWith(schools: schools);
+    try {
+      final schools = await repo.getSchools(state.profileId);
+      state = state.copyWith(schools: schools);
+    } catch (e) {
+      String error = ExceptionHelper.getExceptionMessage(e.toString());
+      read(loaderLogic.notifier).showError(error);
+    }
   }
 }

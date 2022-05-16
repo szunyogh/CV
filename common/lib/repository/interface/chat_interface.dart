@@ -16,7 +16,7 @@ abstract class IChatRepository {
 
   Stream<bool> getTyping(String id);
 
-  Stream<int> getBadsge(String id);
+  Stream<int> getBadge(String id);
 
   Future<void> deleteLike(String uId, String messageId);
 

@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:common/helper/exception.dart';
 import 'dart:io';
 import 'package:common/logic/auth_logic.dart';
 import 'package:common/logic/base.dart';
 import 'package:common/logic/file_logic.dart';
+import 'package:common/logic/loader_logic.dart';
 import 'package:common/logic/profile_logic.dart';
 import 'package:common/model/response/chat.dart';
 import 'package:common/model/response/user.dart';
@@ -46,23 +48,37 @@ class ChatLogic extends BaseLogic<ChatState> {
     });
   }
 
-  Future<StreamSubscription<List<Chat>>> getMessage() async {
-    return repo.getMessages(user.id).listen((event) async {
-      if (event.isEmpty) {
-        DefaultCacheManager().emptyCache();
-      }
-      state = state.copyWith(chats: event);
-      if (connectivity != ConnectivityResult.none) {
-        updateMessageSaw();
-        updateMessage();
-      }
-    });
+  Future<StreamSubscription<List<Chat>>?> getMessage() async {
+    StreamSubscription<List<Chat>>? streamSubscription;
+    try {
+      streamSubscription = repo.getMessages(user.id).listen((event) async {
+        if (event.isEmpty) {
+          DefaultCacheManager().emptyCache();
+        }
+        state = state.copyWith(chats: event);
+        if (connectivity != ConnectivityResult.none) {
+          updateMessageSaw();
+          updateMessage();
+        }
+      });
+    } catch (e) {
+      String error = ExceptionHelper.getExceptionMessage(e.toString());
+      read(loaderLogic.notifier).showError(error);
+    }
+    return streamSubscription;
   }
 
-  Future<void> getBadge() async {
-    repo.getBadsge(user.id).listen((event) {
-      state = state.copyWith(badgeCount: event);
-    });
+  Future<StreamSubscription<int>?> getBadge() async {
+    StreamSubscription<int>? streamSubscription;
+    try {
+      streamSubscription = repo.getBadge(user.id).listen((event) {
+        state = state.copyWith(badgeCount: event);
+      });
+    } catch (e) {
+      String error = ExceptionHelper.getExceptionMessage(e.toString());
+      read(loaderLogic.notifier).showError(error);
+    }
+    return streamSubscription;
   }
 
   void updateFile(List<Chat> chats) async {
@@ -102,46 +118,88 @@ class ChatLogic extends BaseLogic<ChatState> {
     }
   }
 
-  Future<StreamSubscription<bool>> getTyping() async {
-    return repo.getTyping(user.id).listen((event) async {
-      state = state.copyWith(isTyping: event);
-      if (event) {
-        playTypingSound();
-      } else {
-        stopTypingSound();
-      }
-    });
+  Future<StreamSubscription<bool>?> getTyping() async {
+    StreamSubscription<bool>? streamSubscription;
+    try {
+      streamSubscription = repo.getTyping(user.id).listen((event) async {
+        state = state.copyWith(isTyping: event);
+        if (event) {
+          playTypingSound();
+        } else {
+          stopTypingSound();
+        }
+      });
+    } catch (e) {
+      String error = ExceptionHelper.getExceptionMessage(e.toString());
+      read(loaderLogic.notifier).showError(error);
+    }
+    return streamSubscription;
   }
 
   Future<void> sendMessage(String message) async {
-    final request = Chat(dateSent: DateTime.now(), message: message, sender: user.id);
-    await repo.sendMessage(request.toJson(), user.id);
-    await sendPushNoti(message);
+    try {
+      final request = Chat(dateSent: DateTime.now(), message: message, sender: user.id);
+      await repo.sendMessage(request.toJson(), user.id);
+      await sendPushNoti(message);
+    } catch (e) {
+      String error = ExceptionHelper.getExceptionMessage(e.toString());
+      read(loaderLogic.notifier).showError(error);
+    }
   }
 
   Future<void> sendPushNoti(String message) async {
-    final token = read(profileLogic).profile.fcmToken;
-    await repo.sendPushNoti(token, user.notificationId, user.name, message);
+    try {
+      final token = read(profileLogic).profile.fcmToken;
+      await repo.sendPushNoti(token, user.notificationId, user.name, message);
+    } catch (e) {
+      String error = ExceptionHelper.getExceptionMessage(e.toString());
+      read(loaderLogic.notifier).showError(error);
+    }
   }
 
   Future<void> deleteLike(String messageId) async {
-    await repo.deleteLike(user.id, messageId);
+    try {
+      await repo.deleteLike(user.id, messageId);
+    } catch (e) {
+      String error = ExceptionHelper.getExceptionMessage(e.toString());
+      read(loaderLogic.notifier).showError(error);
+    }
   }
 
   Future<void> updateLike(String messageId, String like) async {
-    await repo.updateLike(user.id, messageId, like);
-    read(chatLogic.notifier).sendPushNoti("${user.name} kedvelte az egyik üzenetét");
+    try {
+      await repo.updateLike(user.id, messageId, like);
+      read(chatLogic.notifier).sendPushNoti("${user.name} kedvelte az egyik üzenetét");
+    } catch (e) {
+      String error = ExceptionHelper.getExceptionMessage(e.toString());
+      read(loaderLogic.notifier).showError(error);
+    }
   }
 
   Future<void> updateMessage() async {
-    await repo.updateMessage(user.id);
+    try {
+      await repo.updateMessage(user.id);
+    } catch (e) {
+      String error = ExceptionHelper.getExceptionMessage(e.toString());
+      read(loaderLogic.notifier).showError(error);
+    }
   }
 
   Future<void> updateMessageSaw() async {
-    await repo.updateMessageSaw(user.id);
+    try {
+      await repo.updateMessageSaw(user.id);
+    } catch (e) {
+      String error = ExceptionHelper.getExceptionMessage(e.toString());
+      read(loaderLogic.notifier).showError(error);
+    }
   }
 
   Future<void> typingStatus(bool typing) async {
-    await repo.typingStatus(user.id, 1, typing);
+    try {
+      await repo.typingStatus(user.id, 1, typing);
+    } catch (e) {
+      String error = ExceptionHelper.getExceptionMessage(e.toString());
+      read(loaderLogic.notifier).showError(error);
+    }
   }
 }

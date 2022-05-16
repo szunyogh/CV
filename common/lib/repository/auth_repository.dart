@@ -1,6 +1,7 @@
 import 'package:common/model/response/user.dart';
 import 'package:common/repository/interface/auth_interface.dart';
 import 'package:common/service/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final authenticationRepo = Provider<IAuthRepository>((ref) => AuthRepository());
@@ -14,8 +15,10 @@ class AuthRepository implements IAuthRepository {
   Future<User> signInWithGoogle() async {
     try {
       return await service.signInWithGoogle();
-    } catch (err) {
-      throw Exception();
+    } on firebase.FirebaseException catch (err) {
+      throw Exception(err.code);
+    } catch (error) {
+      throw Exception('');
     }
   }
 
@@ -23,8 +26,10 @@ class AuthRepository implements IAuthRepository {
   Future<void> signOut() async {
     try {
       await service.signOut();
-    } catch (err) {
-      throw Exception();
+    } on firebase.FirebaseException catch (err) {
+      throw Exception(err.code);
+    } catch (error) {
+      throw Exception('');
     }
   }
 
@@ -32,8 +37,10 @@ class AuthRepository implements IAuthRepository {
   Future<User> getUser() async {
     try {
       return await service.getUser();
-    } catch (err) {
-      throw Exception();
+    } on firebase.FirebaseException catch (err) {
+      throw Exception(err.code);
+    } catch (error) {
+      throw Exception('');
     }
   }
 }

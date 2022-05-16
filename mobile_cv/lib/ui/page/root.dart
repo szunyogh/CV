@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:common/logic/auth_logic.dart';
 import 'package:common/logic/chat_logic.dart';
 import 'package:common/model/state/loader_state.dart';
+import 'package:common/ui/widget/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -83,26 +86,20 @@ class _RootState extends ConsumerState<Root> {
   }
 
   void hideloader() {
-    loader!.remove();
+    if (loader == null) return;
+    loader?.remove();
     loader = null;
   }
 
-  void showLoader(BuildContext _context, String message) {
+  void showLoader(BuildContext _context) {
     OverlayState overlay = Overlay.of(_context)!;
 
     if (loader == null) {
       loader = OverlayEntry(
         builder: (context) {
-          return Scaffold(
-            body: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Center(
-                  child: CircularProgressIndicator(),
-                ),
-                const SizedBox(height: 10),
-                Text(message)
-              ],
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
             ),
           );
         },
@@ -110,6 +107,26 @@ class _RootState extends ConsumerState<Root> {
 
       overlay.insert(loader!);
     }
+  }
+
+  void showError(BuildContext _context, String message) {
+    showDialog(
+      context: _context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: Text(message),
+          actions: [
+            CustomButton.primary(
+              child: const Text("Ok"),
+              onTap: () {
+                ref.read(loaderLogic.notifier).cancelError();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -120,9 +137,17 @@ class _RootState extends ConsumerState<Root> {
       }
       ref.listen<LoaderState>(loaderLogic, (previous, next) {
         if (next.hide) {
-          showLoader(context, next.message);
+          if (next.message.isNotEmpty) {
+            showError(context, next.message);
+          } else {
+            showLoader(context);
+          }
         } else {
           hideloader();
+          if (next.message.isNotEmpty) {
+            ref.read(loaderLogic.notifier).cancaledError();
+            Navigator.of(context).pop();
+          }
         }
       });
       return _MenuRoot(
@@ -158,14 +183,26 @@ class _MenuRoot extends ConsumerStatefulWidget {
 
 class _MenuRootState extends ConsumerState<_MenuRoot> {
   int selectedMenuIndex = 0;
+  StreamSubscription<int>? badeCountStream;
   @override
   void initState() {
     selectedMenuIndex = widget.initalMenuIndex;
     super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
       await ref.read(authenticationLogic.notifier).initialize();
-      ref.read(chatLogic.notifier).getBadge();
+      badgeCountStream();
     });
+  }
+
+  void badgeCountStream() async {
+    badeCountStream ??= await ref.read(chatLogic.notifier).getBadge();
+  }
+
+  @override
+  void dispose() {
+    badeCountStream?.cancel();
+    badeCountStream = null;
+    super.dispose();
   }
 
   @override

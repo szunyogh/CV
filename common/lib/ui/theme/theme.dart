@@ -28,6 +28,11 @@ final customTheme = ThemeData().copyWith(
       ),
     ),
   ),
+  dialogTheme: DialogTheme(
+    backgroundColor: Colors.white,
+    elevation: 6,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+  ),
   textTheme: TextTheme(
     bodyText2: GoogleFonts.oswald(
       textStyle: const TextStyle(fontSize: 18, color: Colors.black, fontWeight: FontWeight.w400),

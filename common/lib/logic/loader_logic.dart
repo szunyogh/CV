@@ -10,11 +10,23 @@ class LoaderLogic extends BaseLogic<LoaderState> {
   @override
   Future<void> initialize() async {}
 
-  void showLoader(String message) async {
-    state = state.copyWith(hide: true, message: message);
+  void showLoader() async {
+    state = state.copyWith(hide: true, message: "");
   }
 
   void hideLoader() {
     state = state.copyWith(hide: false, message: "");
+  }
+
+  void showError(String error) {
+    state = state.copyWith(hide: true, message: error);
+  }
+
+  void cancelError() {
+    state = state.copyWith(hide: false);
+  }
+
+  void cancaledError() {
+    state = state.copyWith(message: "");
   }
 }
